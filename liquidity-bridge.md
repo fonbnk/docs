@@ -4,14 +4,18 @@
 
 This is a draft API for V2 of the current Fonbnk API for merchants.
 
-In the previous version we had a distinction between "onramp" and "offramp" endpoints with a separate set of endpoints for each, different request and response formats, and different integrations for each.
-In this new version we unify the concepts into a single "Liquidity Bridge" API, and we now operate with the concepts of "deposit" and "payout" instead of "onramp" and "offramp".
+In the previous version we had a distinction between "onramp" and "offramp" endpoints with a separate set of endpoints
+for each, different request and response formats, and different integrations for each.
+In this new version we unify the concepts into a single "Liquidity Bridge" API, and we now operate with the concepts
+of "deposit" and "payout" instead of "onramp" and "offramp".
 The merchant has the access to the next currency types:
+
 - Fiat (e.g., NGN, KES, GHS)
 - Crypto (e.g., CELO_CUSD, TRON_USDT, POLYGON_USDT)
 - Merchant Balance (at the moment only in USD)
 
 Merchant then can create orders to deposit one currency type and payout another currency type, for example:
+
 - Deposit Fiat (NGN) via Bank Transfer, Payout Crypto (POLYGON_USDT)
 - Deposit Crypto (CELO_CUSD) via Crypto Transfer, Payout fiat mobile money (KES)
 - Deposit Merchant Balance (USD) via Merchant Balance, Payout Crypto (TRON_USDT)
@@ -19,21 +23,26 @@ Merchant then can create orders to deposit one currency type and payout another 
 - etc.
 
 With the new architecture, a merchant has the access to:
+
 - off-ramp
 - on-ramp
 - funding their merchant balance from any of the supported deposit methods
 - withdrawing their merchant balance to any of the supported payout methods
-- accepting crypto/fiat payments from users to their merchant balance and then using that balance to payout to any of the supported payout methods
-
+- accepting crypto/fiat payments from users to their merchant balance and then using that balance to payout to any of
+  the supported payout methods
 
 ## Order flow
 
 1. Call "Get Currencies" endpoint to get the list of supported currencies and corresponding pairs
 2. Call "Get Order Limits" endpoint to get the min and max limits for the selected deposit and payout currency pair.
-3. Call "Get Quote" endpoint to get a pricing quote for the selected deposit and payout currency pair and amount. Get fieldsToCreateOrder from both deposit and payout to know what fields are required to create the order and ask the user for those fields.
-4. Call "Create Order" endpoint with the quoteId from the previous step and the fields collected from the user to create the order.
+3. Call "Get Quote" endpoint to get a pricing quote for the selected deposit and payout currency pair and amount. Get
+   fieldsToCreateOrder from both deposit and payout to know what fields are required to create the order and ask the
+   user for those fields.
+4. Call "Create Order" endpoint with the quoteId from the previous step and the fields collected from the user to create
+   the order.
 5. The user makes the deposit based on the transfer instructions provided in the order response.
-6. If the transfer type requires an intermediate action (init otp stk push by providing otp code or retry stk push), the merchant calls the "Trigger Intermediate Action" endpoint to trigger the action with the required fields if needed.
+6. If the transfer type requires an intermediate action (init otp stk push by providing otp code or retry stk push), the
+   merchant calls the "Trigger Intermediate Action" endpoint to trigger the action with the required fields if needed.
 7. The merchant calls the "Confirm Order" endpoint to confirm the deposit if required.
 8. The order status is updated as the deposit is validated and the payout is processed.
 9. The merchant can call the "Get Order" endpoint to retrieve the order status and details.
@@ -47,13 +56,22 @@ _**GET** /api/v2/liquidity-bridge/currencies_
 Returns supported currencies for deposit and payout with details and available pairs
 
 Response type:
+
 ```typescript
 type CurrenciesResponse = {
   currencyType: CurrencyType;
   currencyCode: string;
-  paymentChannels: PaymentChannel[];
+  paymentChannels: {
+    type: PaymentChannel,
+    transferTypes: TransferType[],
+    isDepositAllowed: boolean,
+    isPayoutAllowed: boolean,
+    carriers?: {
+      code: string;
+      name: string;
+    }[]
+  }[];
   currencyDetails: OrderCurrencyDetails;
-  pairs: CurrencyType[]
 }[]
 ```
 
@@ -64,21 +82,58 @@ const response = [
   {
     currencyType: "fiat",
     currencyCode: "NGN",
-    paymentChannels: ["bank", "mobile_money", "airtime"],
+    paymentChannels: [
+      {
+        type: "bank",
+        transferTypes: ["manual", "redirect"],
+        isDepositAllowed: true,
+        isPayoutAllowed: true,
+      },
+      {
+        type: "airtime",
+        transferTypes: ["ussd"],
+        carriers: [
+          {code: "MTN", name: "MTN"},
+          {code: "AIRTEL", name: "Airtel"},
+          {code: "GLO", name: "Glo"},
+          {code: "9MOBILE", name: "9Mobile"},
+        ],
+        isDepositAllowed: true,
+        isPayoutAllowed: false,
+      },
+      {
+        type: "mobile_money",
+        transferTypes: ["stk_push", "otp_stk_push"],
+        carriers: [
+          {code: "MTN", name: "MTN Mobile Money"},
+          {code: "AIRTEL", name: "Airtel Money"},
+          {code: "GLO", name: "Glo Mobile Money"},
+          {code: "9MOBILE", name: "9Mobile Money"},
+        ],
+        isDepositAllowed: true,
+        isPayoutAllowed: true,
+      },
+    ],
     currencyDetails: {
       countryIsoCode: "NG",
       countryName: "Nigeria",
       countryCode: "234",
       currencySymbol: "₦",
-      countryIcon: "https://cdn.example.com/flags/ng.png",
-      carriers: []
+      countryIcon: "https://cdn.example.com/flags/ng.png"
     },
     pairs: ["crypto", "merchant_balance"]
   },
   {
     currencyType: "crypto",
     currencyCode: "POLYGON_USDT",
-    paymentChannels: ["crypto"],
+    paymentChannels: [
+      {
+        type: "crypto",
+        transferTypes: ["manual"],
+        isDepositAllowed: true,
+        isPayoutAllowed: true,
+      }
+    ],
     currencyDetails: {
       network: "POLYGON",
       asset: "USDT",
@@ -94,7 +149,14 @@ const response = [
   {
     currencyType: "merchant_balance",
     currencyCode: "USD",
-    paymentChannels: ["merchant_balance"],
+    paymentChannels: [
+      {
+        type: "merchant_balance",
+        transferTypes: [],
+        isDepositAllowed: true,
+        isPayoutAllowed: true,
+      }
+    ],
     currencyDetails: {
       merchantName: "Example Company Ltd",
     },
@@ -110,6 +172,7 @@ _**GET** /api/v2/liquidity-bridge/order-limits_
 Returns min and max order limits for a deposit and payout currency pair
 
 Query params:
+
 - depositPaymentChannel: string (required) - The payment channel to deposit from (see PaymentChannel)
 - depositCurrencyType: string (required) - The currency to deposit (see CurrencyType)
 - depositCurrencyCode: string (required) - The currency to deposit (e.g., "NGN", "KES", "CELO_CUSD", "TRON_USDT")
@@ -120,6 +183,7 @@ Query params:
 - payoutCarrierCode: string (optional) - The mobile carrier code if paying out via airtime or mobile money
 
 Response type:
+
 ```typescript
 type OrderLimitsResponse = {
   deposit: {
@@ -166,16 +230,18 @@ const response = {
 ```
 
 ### Get Quote
+
 _**POST** /api/v2/liquidity-bridge/quote_
 
 Returns pricing quote for a deposit and payout currency pair
 
 Request body:
+
 - deposit.paymentChannel: string (required) - The payment channel to deposit from (see PaymentChannel)
 - deposit.currencyType: string (required) - The currency to deposit (see CurrencyType)
 - deposit.currencyCode: string (required) - The currency to deposit (e.g., "NGN", "KES", "CELO_CUSD", "TRON_USDT")
 - deposit.amount: string (optional) - The amount user pays
-- deposit.carrierCode: string (optional) - The mobile carrier code if depositing via airtime or mobile money 
+- deposit.carrierCode: string (optional) - The mobile carrier code if depositing via airtime or mobile money
 - payout.paymentChannel: string (required) - The payment channel to payout to (see PaymentChannel)
 - payout.currencyType: string (required) - The currency to payout (see CurrencyType)
 - payout.currencyCode: string (required) - The currency to payout (e.g., "
@@ -183,8 +249,8 @@ Request body:
 - payout.carrierCode: string (optional) - The mobile carrier code if paying out via airtime or mobile money
   (Note: Either deposit.amount or payout.amount must be provided, but not both)
 
-
 Response type:
+
 ```typescript
 type QuoteResponse = {
   quoteId: string;
@@ -208,6 +274,7 @@ type QuoteResponse = {
   }
 }
 ```
+
 Response example:
 
 ```typescript
@@ -402,7 +469,6 @@ const response = {
 }
 ```
 
-
 ### Create Order
 
 _**POST** /api/v2/liquidity-bridge/order_
@@ -410,6 +476,7 @@ _**POST** /api/v2/liquidity-bridge/order_
 Creates an order to process a deposit and payout based on a quote if provided
 
 Request body:
+
 ```typescript
 type CreateOrderRequest = {
   quoteId?: string;
@@ -437,6 +504,7 @@ type CreateOrderRequest = {
 ```
 
 Response type:
+
 ```typescript
 type CreateOrderResponse = {
   order: {
@@ -520,6 +588,7 @@ Triggers an intermediate action for a deposit order (e.g., STK Push or OTP STK P
 Needs to be called within the timeout period and before max attempts are reached.
 
 Request body:
+
 ```typescript
 type TriggerIntermediateActionRequest = {
   orderId: string; // The ID of the order to trigger the action for
@@ -529,7 +598,6 @@ type TriggerIntermediateActionRequest = {
 
 Returns the same response as Get Order (see below)
 
-
 ### Confirm order
 
 _**POST** /api/v2/liquidity-bridge/order/confirm_
@@ -537,15 +605,15 @@ _**POST** /api/v2/liquidity-bridge/order/confirm_
 Confirms a deposit order
 
 Request body:
+
 ```typescript
 type ConfirmOrderRequest = {
-    orderId: string; // The ID of the order to confirm
-    fieldsToConfirmOrder?: Record<string, string>; // The fields required to confirm the order (if they are required in the transfer instructions)
+  orderId: string; // The ID of the order to confirm
+  fieldsToConfirmOrder?: Record<string, string>; // The fields required to confirm the order (if they are required in the transfer instructions)
 }
 ```
 
 Returns the same response as Get Order (see below)
-
 
 ### [Cancel order](#cancel)
 
@@ -553,11 +621,13 @@ _**POST** /api/v2/liquidity-bridge/order/cancel_
 Cancels a deposit order if it is still in a cancellable state
 
 Request body:
+
 ```typescript
 type CancelOrderRequest = {
-    orderId: string; // The ID of the order to cancel
+  orderId: string; // The ID of the order to cancel
 }
 ```
+
 Returns the same response as Get Order (see below)
 
 ### Get Order
@@ -567,10 +637,12 @@ _**GET** /api/v2/liquidity-bridge/order_
 Retrieves an order by its ID or merchant order params
 
 Query params:
+
 - orderId?: string (optional) - The ID of the order to retrieve
 - orderParams?: string (optional) - The merchant order params associated with the order
 
 Response type:
+
 ```typescript
 type GetOrderResponse = {
   _id: string,
@@ -862,9 +934,10 @@ _**GET** /api/v2/liquidity-bridge/merchant-balance_
 Returns the current merchant balance (currently only in USD)
 
 Response type:
+
 ```typescript
 type MerchantBalanceResponse = {
-  USD: number; 
+  USD: number;
 }
 ```
 
@@ -887,6 +960,7 @@ export enum CurrencyType {
   CRYPTO = 'crypto',
   MERCHANT_BALANCE = 'merchant_balance',
 }
+
 export type OrderCurrencyDetails =
   | OrderCryptoDetails
   | OrderFiatDetails
@@ -1089,11 +1163,11 @@ export enum OrderStatus {
   DEPOSIT_AWAITING = 'deposit_awaiting', // Waiting for user to make the deposit
   DEPOSIT_VALIDATING = 'deposit_validating', // Deposit made, waiting for confirmation
   DEPOSIT_INVALID = 'deposit_invalid', // Deposit was invalid (e.g., wrong amount, wrong account)
-  DEPOSIT_SUCCESSFUL = 'deposit_successful', 
+  DEPOSIT_SUCCESSFUL = 'deposit_successful',
   DEPOSIT_CANCELED = 'deposit_canceled', // User canceled the order before making the deposit
   PAYOUT_PENDING = 'payout_pending', // Deposit confirmed, payout is being processed
   PAYOUT_SUCCESSFUL = 'payout_successful', // Payout completed successfully
-  PAYOUT_FAILED = 'payout_failed', 
+  PAYOUT_FAILED = 'payout_failed',
   REFUNDING_INITIATED = 'refunding_initiated',
   REFUNDING_PENDING = 'refunding_pending',
   REFUNDING_SUCCESSFUL = 'refunding_successful',
