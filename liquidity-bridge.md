@@ -314,7 +314,7 @@ const response = {
       amountAfterFeesUsd: 6.5,
       feeSettings: [
         {
-          id: "provider-fee",
+          id: "provider_fee",
           recipient: "provider",
           type: "flat_amount",
           value: 50,
@@ -322,7 +322,7 @@ const response = {
           max: "Infinity",
         },
         {
-          id: "platform-fee",
+          id: "platform_fee",
           recipient: "platform",
           type: "percentage",
           value: 2,
@@ -332,13 +332,13 @@ const response = {
       ],
       chargedFees: [
         {
-          id: "provider-fee",
+          id: "provider_fee",
           type: "flat_amount",
           recipient: "provider",
           amount: 50,
         },
         {
-          id: "platform-fee",
+          id: "platform_fee",
           type: "percentage",
           recipient: "platform",
           amount: 199,
@@ -346,13 +346,13 @@ const response = {
       ],
       chargedFeesUsd: [
         {
-          id: "provider-fee",
+          id: "provider_fee",
           type: "flat_amount",
           recipient: "provider",
           amount: 0.03,
         },
         {
-          id: "platform-fee",
+          id: "platform_fee",
           type: "percentage",
           recipient: "platform",
           amount: 0.13,
@@ -424,7 +424,7 @@ const response = {
       amountAfterFeesUsd: 6.49,
       feeSettings: [
         {
-          id: "gas-fee",
+          id: "gas_fee",
           recipient: "blockchain",
           type: "flat_amount",
           value: 0.01,
@@ -434,7 +434,7 @@ const response = {
       ],
       chargedFees: [
         {
-          id: "gas-fee",
+          id: "gas_fee",
           type: "flat_amount",
           recipient: "blockchain",
           amount: 0.01,
@@ -442,7 +442,7 @@ const response = {
       ],
       chargedFeesUsd: [
         {
-          id: "gas-fee",
+          id: "gas_fee",
           type: "flat_amount",
           recipient: "blockchain",
           amount: 0.01,
@@ -711,7 +711,7 @@ const response = {
       amountAfterFeesUsd: 6.5,
       feeSettings: [
         {
-          id: "provider-fee",
+          id: "provider_fee",
           recipient: "provider",
           type: "flat_amount",
           value: 50,
@@ -719,7 +719,7 @@ const response = {
           max: "Infinity",
         },
         {
-          id: "platform-fee",
+          id: "platform_fee",
           recipient: "platform",
           type: "percentage",
           value: 2,
@@ -729,13 +729,13 @@ const response = {
       ],
       chargedFees: [
         {
-          id: "provider-fee",
+          id: "provider_fee",
           type: "flat_amount",
           recipient: "provider",
           amount: 50,
         },
         {
-          id: "platform-fee",
+          id: "platform_fee",
           type: "percentage",
           recipient: "platform",
           amount: 199,
@@ -743,13 +743,13 @@ const response = {
       ],
       chargedFeesUsd: [
         {
-          id: "provider-fee",
+          id: "provider_fee",
           type: "flat_amount",
           recipient: "provider",
           amount: 0.03,
         },
         {
-          id: "platform-fee",
+          id: "platform_fee",
           type: "percentage",
           recipient: "platform",
           amount: 0.13,
@@ -860,7 +860,7 @@ const response = {
       amountAfterFeesUsd: 6.49,
       feeSettings: [
         {
-          id: "gas-fee",
+          id: "gas_fee",
           recipient: "blockchain",
           type: "flat_amount",
           value: 0.01,
@@ -870,7 +870,7 @@ const response = {
       ],
       chargedFees: [
         {
-          id: "gas-fee",
+          id: "gas_fee",
           type: "flat_amount",
           recipient: "blockchain",
           amount: 0.01,
@@ -878,7 +878,7 @@ const response = {
       ],
       chargedFeesUsd: [
         {
-          id: "gas-fee",
+          id: "gas_fee",
           type: "flat_amount",
           recipient: "blockchain",
           amount: 0.01,
