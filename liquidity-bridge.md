@@ -113,9 +113,11 @@ Query params:
 - depositPaymentChannel: string (required) - The payment channel to deposit from (see PaymentChannel)
 - depositCurrencyType: string (required) - The currency to deposit (see CurrencyType)
 - depositCurrencyCode: string (required) - The currency to deposit (e.g., "NGN", "KES", "CELO_CUSD", "TRON_USDT")
+- depositCarrierCode: string (optional) - The mobile carrier code if depositing via airtime or mobile money
 - payoutPaymentChannel: string (required) - The payment channel to payout to (see PaymentChannel)
 - payoutCurrencyType: string (required) - The currency to payout (see CurrencyType)
 - payoutCurrencyCode: string (required) - The currency to payout (e.g., "NGN", "KES", "CELO_CUSD", "TRON_USDT")
+- payoutCarrierCode: string (optional) - The mobile carrier code if paying out via airtime or mobile money
 
 Response type:
 ```typescript
@@ -173,10 +175,12 @@ Request body:
 - deposit.currencyType: string (required) - The currency to deposit (see CurrencyType)
 - deposit.currencyCode: string (required) - The currency to deposit (e.g., "NGN", "KES", "CELO_CUSD", "TRON_USDT")
 - deposit.amount: string (optional) - The amount user pays
+- deposit.carrierCode: string (optional) - The mobile carrier code if depositing via airtime or mobile money 
 - payout.paymentChannel: string (required) - The payment channel to payout to (see PaymentChannel)
 - payout.currencyType: string (required) - The currency to payout (see CurrencyType)
 - payout.currencyCode: string (required) - The currency to payout (e.g., "
 - payout.amount: string (optional) - The amount user receives
+- payout.carrierCode: string (optional) - The mobile carrier code if paying out via airtime or mobile money
   (Note: Either deposit.amount or payout.amount must be provided, but not both)
 
 
@@ -232,7 +236,6 @@ const response = {
       countryCode: "234",
       currencySymbol: "₦",
       countryIcon: "https://cdn.example.com/flags/ng.png",
-      carriers: []
     },
     cashout: {
       exchangeRate: 1500,
@@ -415,12 +418,14 @@ type CreateOrderRequest = {
     paymentChannel: PaymentChannel;
     currencyType: CurrencyType;
     currencyCode: string;
+    carrierCode?: string; // The mobile carrier code if depositing via airtime or mobile money
     amount?: number;
   },
   payout: {
     paymentChannel: PaymentChannel;
     currencyType: CurrencyType;
     currencyCode: string;
+    carrierCode?: string; // The mobile carrier code if paying out via airtime or mobile money
     amount?: number;
   };
   fields: Record<string, any>; // combined fields for both deposit and payout required to create the order
@@ -623,7 +628,6 @@ const response = {
       countryCode: "234",
       currencySymbol: "₦",
       countryIcon: "https://cdn.example.com/flags/ng.png",
-      carriers: []
     },
     cashout: {
       exchangeRate: 1500,
