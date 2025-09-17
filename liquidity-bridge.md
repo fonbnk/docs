@@ -562,7 +562,7 @@ Returns the same response as Get Order (see below)
 
 ### Get Order
 
-_**GET** /api/v2/liquidity-bridge/order
+_**GET** /api/v2/liquidity-bridge/order_
 
 Retrieves an order by its ID or merchant order params
 
