@@ -33,7 +33,7 @@ With the new architecture, a merchant has the access to:
 3. Call "Get Quote" endpoint to get a pricing quote for the selected deposit and payout currency pair and amount. Get fieldsToCreateOrder from both deposit and payout to know what fields are required to create the order and ask the user for those fields.
 4. Call "Create Order" endpoint with the quoteId from the previous step and the fields collected from the user to create the order.
 5. The user makes the deposit based on the transfer instructions provided in the order response.
-6. If the transfer type requires an intermediate action (e.g., STK Push), the merchant calls the "Trigger Intermediate Action" endpoint to trigger the action with the required fields if needed.
+6. If the transfer type requires an intermediate action (init otp stk push by providing otp code or retry stk push), the merchant calls the "Trigger Intermediate Action" endpoint to trigger the action with the required fields if needed.
 7. The merchant calls the "Confirm Order" endpoint to confirm the deposit if required.
 8. The order status is updated as the deposit is validated and the payout is processed.
 9. The merchant can call the "Get Order" endpoint to retrieve the order status and details.
