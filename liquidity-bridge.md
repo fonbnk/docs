@@ -534,7 +534,7 @@ Request body:
 ```typescript
 type ConfirmOrderRequest = {
     orderId: string; // The ID of the order to confirm
-    fields?: Record<string, string>; // The fields required to confirm the order (if any)
+    fields?: Record<string, string>; // The fields required to confirm the order (if they are required in the transfer instructions)
 }
 ```
 
