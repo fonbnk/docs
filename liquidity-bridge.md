@@ -827,7 +827,19 @@ type GetOrderResponse = {
 }
 
 ````
-The response example is the same as the Create Order response example above.
+
+### Get merchant balance
+
+_**GET** /api/v2/liquidity-bridge/merchant-balance_
+
+Returns the current merchant balance (currently only in USD)
+
+Response type:
+```typescript
+type MerchantBalanceResponse = {
+  USD: number; 
+}
+```
 
 ## Types used in the above definitions:
 
