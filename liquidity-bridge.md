@@ -417,7 +417,7 @@ const response = {
     },
     cashout: {
       exchangeRate: 1,
-      exchangeRateAfterFees: 0.9985,
+      exchangeRateAfterFees: 1.0015,
       amountBeforeFees: 6.5,
       amountAfterFees: 6.49,
       amountBeforeFeesUsd: 6.5,
@@ -853,7 +853,7 @@ const response = {
     },
     cashout: {
       exchangeRate: 1,
-      exchangeRateAfterFees: 0.9985,
+      exchangeRateAfterFees: 1.0015,
       amountBeforeFees: 6.5,
       amountAfterFees: 6.49,
       amountBeforeFeesUsd: 6.5,
