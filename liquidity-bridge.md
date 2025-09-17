@@ -30,8 +30,8 @@ With the new architecture, a merchant has the access to:
 
 1. Call "Get Currencies" endpoint to get the list of supported currencies and corresponding pairs
 2. Call "Get Order Limits" endpoint to get the min and max limits for the selected deposit and payout currency pair.
-3. Call "Get Quote" endpoint to get a pricing quote for the selected deposit and payout currency pair and amount.
-4. The merchant calls the "Create Order" endpoint to create an order based on the quote (if provided) and the required fields for the deposit and payout.
+3. Call "Get Quote" endpoint to get a pricing quote for the selected deposit and payout currency pair and amount. Get fieldsToCreateOrder from both deposit and payout to know what fields are required to create the order and ask the user for those fields.
+4. Call "Create Order" endpoint with the quoteId from the previous step and the fields collected from the user to create the order.
 5. The user makes the deposit based on the transfer instructions provided in the order response.
 6. If the transfer type requires an intermediate action (e.g., STK Push), the merchant calls the "Trigger Intermediate Action" endpoint to trigger the action with the required fields if needed.
 7. The merchant calls the "Confirm Order" endpoint to confirm the deposit if required.
@@ -403,12 +403,12 @@ const response = {
 
 _**POST** /api/v2/liquidity-bridge/order_
 
-Creates an order to process a deposit and payout based on a quote if provided
+Creates an order to process a deposit and payout based on a quote
 
 Request body:
 ```typescript
 type CreateOrderRequest = {
-  quoteId?: string;
+  quoteId: string;
   userEmail: string; // The email of the user creating the order
   userIp: string; // The IP address of the user creating the order
   deposit: {
