@@ -113,6 +113,7 @@ Query params:
 - depositPaymentChannel: string (required) - The payment channel to deposit from (see PaymentChannel)
 - depositCurrencyType: string (required) - The currency to deposit (see CurrencyType)
 - depositCurrencyCode: string (required) - The currency to deposit (e.g., "NGN", "KES", "CELO_CUSD", "TRON_USDT")
+- payoutPaymentChannel: string (required) - The payment channel to payout to (see PaymentChannel)
 - payoutCurrencyType: string (required) - The currency to payout (see CurrencyType)
 - payoutCurrencyCode: string (required) - The currency to payout (e.g., "NGN", "KES", "CELO_CUSD", "TRON_USDT")
 
@@ -141,6 +142,7 @@ const queryParams = {
   depositPaymentChannel: "bank",
   depositCurrencyType: "fiat",
   depositCurrencyCode: "NGN",
+  payoutPaymentChannel: "crypto",
   payoutCurrencyType: "crypto",
   payoutCurrencyCode: "POLYGON_USDT",
 }
@@ -171,6 +173,7 @@ Request body:
 - deposit.currencyType: string (required) - The currency to deposit (see CurrencyType)
 - deposit.currencyCode: string (required) - The currency to deposit (e.g., "NGN", "KES", "CELO_CUSD", "TRON_USDT")
 - deposit.amount: string (optional) - The amount user pays
+- payout.paymentChannel: string (required) - The payment channel to payout to (see PaymentChannel)
 - payout.currencyType: string (required) - The currency to payout (see CurrencyType)
 - payout.currencyCode: string (required) - The currency to payout (e.g., "
 - payout.amount: string (optional) - The amount user receives
@@ -211,6 +214,7 @@ const requestBody = {
     amount: 10000,
   },
   payout: {
+    paymentChannel: "crypto",
     currencyType: "crypto",
     currencyCode: "POLYGON_USDT",
   }
@@ -730,7 +734,7 @@ const response = {
 
 ### Trigger intermediate action
 
-_**POST** /api/v2/liquidity-bridge/order/intermediate-action
+_**POST** /api/v2/liquidity-bridge/order/intermediate-action_
 
 Triggers an intermediate action for a deposit order (e.g., STK Push or OTP STK Push).
 Needs to be called within the timeout period and before max attempts are reached.
@@ -748,7 +752,7 @@ Returns the same response as Get Order (see below)
 
 ### Confirm order
 
-_**POST** /api/v2/liquidity-bridge/order/confirm
+_**POST** /api/v2/liquidity-bridge/order/confirm_
 
 Confirms a deposit order
 
@@ -764,7 +768,7 @@ Returns the same response as Get Order (see below)
 
 ### [Cancel order](#cancel)
 
-_**POST** /api/v2/liquidity-bridge/order/cancel
+_**POST** /api/v2/liquidity-bridge/order/cancel_
 Cancels a deposit order if it is still in a cancellable state
 
 Request body:
