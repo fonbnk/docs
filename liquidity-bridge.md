@@ -429,7 +429,7 @@ type CreateOrderRequest = {
     carrierCode?: string; // The mobile carrier code if paying out via airtime or mobile money
     amount?: number;
   };
-  fields: Record<string, any>; // combined fields for both deposit and payout required to create the order
+  fieldsToCreateOrder: Record<string, any>; // combined fields for both deposit and payout required to create the order
   redirectUrl?: string; // The URL to redirect to after completing the deposit (for redirect transfer type)
   orderParams?: string; // Optional parameters to associate with the order
   callbackUrl?: string; // URL to the button on the order status page in the widget
@@ -495,7 +495,7 @@ const requestBody = {
     currencyType: "crypto",
     currencyCode: "POLYGON_USDT",
   },
-  fields: {
+  fieldsToCreateOrder: {
     blockchainWalletAddress: "0x5b7ae3c6c83F4A3F94b35c77233b13191eBGAD21",
     phoneNumber: "2348012345678",
     bankCode: "120001:02",
@@ -523,7 +523,7 @@ Request body:
 ```typescript
 type TriggerIntermediateActionRequest = {
   orderId: string; // The ID of the order to trigger the action for
-  fields: Record<string, string>; // The fields required to trigger the intermediate action
+  fieldsForIntermediateAction: Record<string, string>; // The fields required to trigger the intermediate action
 }
 ```
 
@@ -540,7 +540,7 @@ Request body:
 ```typescript
 type ConfirmOrderRequest = {
     orderId: string; // The ID of the order to confirm
-    fields?: Record<string, string>; // The fields required to confirm the order (if they are required in the transfer instructions)
+    fieldsToConfirmOrder?: Record<string, string>; // The fields required to confirm the order (if they are required in the transfer instructions)
 }
 ```
 
