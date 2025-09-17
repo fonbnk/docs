@@ -28,9 +28,9 @@ With the new architecture, a merchant has the access to:
 
 ## Order flow
 
-1. The merchant calls the "Get Currencies" endpoint to get the list of supported currencies and corresponding pairs.
-2. The merchant calls the "Get Order Limits" endpoint to get the min and max limits for the selected deposit and payout currency pair.
-3. The merchant calls the "Get Quote" endpoint to get a pricing quote for the selected deposit and payout currency pair and amount.
+1. Call "Get Currencies" endpoint to get the list of supported currencies and corresponding pairs
+2. Call "Get Order Limits" endpoint to get the min and max limits for the selected deposit and payout currency pair.
+3. Call "Get Quote" endpoint to get a pricing quote for the selected deposit and payout currency pair and amount.
 4. The merchant calls the "Create Order" endpoint to create an order based on the quote (if provided) and the required fields for the deposit and payout.
 5. The user makes the deposit based on the transfer instructions provided in the order response.
 6. If the transfer type requires an intermediate action (e.g., STK Push), the merchant calls the "Trigger Intermediate Action" endpoint to trigger the action with the required fields if needed.
@@ -416,15 +416,14 @@ type CreateOrderRequest = {
     currencyType: CurrencyType;
     currencyCode: string;
     amount?: number;
-    fields: Record<string, any>;
   },
   payout: {
     paymentChannel: PaymentChannel;
     currencyType: CurrencyType;
     currencyCode: string;
     amount?: number;
-    fields: Record<string, any>;
   };
+  fields: Record<string, any>; // combined fields for both deposit and payout required to create the order
   redirectUrl?: string; // The URL to redirect to after completing the deposit (for redirect transfer type)
   orderParams?: string; // Optional parameters to associate with the order
   callbackUrl?: string; // URL to the button on the order status page in the widget
@@ -484,19 +483,17 @@ const requestBody = {
     currencyType: "fiat",
     currencyCode: "NGN",
     amount: 10000,
-    fields: {
-      phoneNumber: "2348012345678",
-      bankCode: "120001:02",
-      bankAccountNumber: "1234567890",
-    },
   },
   payout: {
     paymentChannel: "crypto",
     currencyType: "crypto",
     currencyCode: "POLYGON_USDT",
-    fields: {
-      blockchainWalletAddress: "0x5b7ae3c6c83F4A3F94b35c77233b13191eBGAD21",
-    }
+  },
+  fields: {
+    blockchainWalletAddress: "0x5b7ae3c6c83F4A3F94b35c77233b13191eBGAD21",
+    phoneNumber: "2348012345678",
+    bankCode: "120001:02",
+    bankAccountNumber: "1234567890",
   }
 }
 
@@ -537,6 +534,7 @@ Request body:
 ```typescript
 type ConfirmOrderRequest = {
     orderId: string; // The ID of the order to confirm
+    fields?: Record<string, string>; // The fields required to confirm the order (if any)
 }
 ```
 
