@@ -115,7 +115,7 @@ const response = {
 }
 ```
 
-### (Get Quote)[#get-quote]
+### [Get Quote](#get-quote)
 _**POST** /api/v2/liquidity-bridge/quote_
 
 Returns pricing quote for a deposit and payout currency pair
@@ -349,7 +349,7 @@ const response = {
 ```
 
 
-### (Create Order)[#create-order]
+### [Create Order](#create-order)
 
 _**POST** /api/v2/liquidity-bridge/order_
 
@@ -682,7 +682,7 @@ const response = {
 
 ```
 
-### [Trigger intermediate action](#trigger-intermediate-action)
+### [Trigger intermediate action](#trigger)
 
 _**POST** /api/v2/liquidity-bridge/order/intermediate-action
 
@@ -700,7 +700,7 @@ type TriggerIntermediateActionRequest = {
 Returns the same response as Get Order (see below)
 
 
-### Get Order
+### (Get Order)[#get-order]
 
 _**GET** /api/v2/liquidity-bridge/order
 
@@ -750,7 +750,7 @@ type GetOrderResponse = {
 ````
 The response example is the same as the Create Order response example above.
 
-## Types used in the above definitions:
+## [Types used in the above definitions](#types):
 
 ```typescript
 
