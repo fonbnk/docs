@@ -941,18 +941,18 @@ type FeeSetting =
   recipient: FeeRecipient;
   type: FeeType.FLAT_AMOUNT;
   value: number;
-  min: number;
-  max: number | 'Infinity';
+  min: number; // minimum order amount for the fee to apply
+  max: number | 'Infinity'; // maximum order amount for the fee to apply
 }
   | {
   id: string;
   recipient: FeeRecipient;
   type: FeeType.PERCENTAGE;
   value: number;
-  min: number;
-  max: number | 'Infinity';
-  minCap?: number;
-  maxCap?: number;
+  min: number; // minimum order amount for the fee to apply
+  max: number | 'Infinity'; // maximum order amount for the fee to apply
+  minCap?: number; // minimum fee amount
+  maxCap?: number; // maximum fee amount
 };
 
 type ChargedFee = {
