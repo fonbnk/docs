@@ -502,230 +502,7 @@ const requestBody = {
 
 const response = {
   order: {
-    _id: "5f8d0d55b54764421b7156c5",
-    countryIsoCode: "NG",
-    userId: "68628fa56ff494df5f39faf6",
-    userEmail: "user@example.com",
-    merchantOrderParams: "order-12345",
-    status: "deposit_awaiting",
-    deposit: {
-      paymentChannel: "bank",
-      currencyType: "fiat",
-      currencyCode: "NGN",
-      currencyDetails: {
-        countryIsoCode: "NG",
-        countryName: "Nigeria",
-        countryCode: "234",
-        currencySymbol: "₦",
-        countryIcon: "https://cdn.example.com/flags/ng.png",
-        carriers: []
-      },
-      cashout: {
-        exchangeRate: 1500,
-        exchangeRateAfterFees: 1538.46,
-        amountBeforeFees: 10000,
-        amountAfterFees: 9751,
-        amountBeforeFeesUsd: 6.67,
-        amountAfterFeesUsd: 6.5,
-        feeSettings: [
-          {
-            id: "provider-fee",
-            recipient: "provider",
-            type: "flat_amount",
-            value: 50,
-            min: 0,
-            max: "Infinity",
-          },
-          {
-            id: "platform-fee",
-            recipient: "platform",
-            type: "percentage",
-            value: 2,
-            min: 0,
-            max: "Infinity",
-          }
-        ],
-        chargedFees: [
-          {
-            id: "provider-fee",
-            type: "flat_amount",
-            recipient: "provider",
-            amount: 50,
-          },
-          {
-            id: "platform-fee",
-            type: "percentage",
-            recipient: "platform",
-            amount: 199,
-          }
-        ],
-        chargedFeesUsd: [
-          {
-            id: "provider-fee",
-            type: "flat_amount",
-            recipient: "provider",
-            amount: 0.03,
-          },
-          {
-            id: "platform-fee",
-            type: "percentage",
-            recipient: "platform",
-            amount: 0.13,
-          }
-        ],
-        totalChargedFees: 249,
-        totalChargedFeesUsd: 0.16,
-        chargedFeesPerRecipient: {
-          provider: 50,
-          platform: 199,
-        },
-        chargedFeesPerRecipientUsd: {
-          provider: 0.03,
-          platform: 0.13,
-        },
-      },
-      fieldsToCreateOrder: [
-        {
-          key: "phoneNumber",
-          label: 'Phone Number',
-          required: true,
-          type: "phone",
-        },
-        {
-          key: "bankCode",
-          label: 'Bank name',
-          required: true,
-          type: "enum",
-          options: [
-            {
-              "value": "120001:02",
-              "label": "9Payment Service Bank"
-            },
-            {
-              "value": "801:02",
-              "label": "Abbey Mortgage Bank"
-            }
-          ],
-        },
-        {
-          key: "bankAccountNumber",
-          label: 'Bank Account Number',
-          required: true,
-          type: "string",
-        },
-      ],
-      providedFieldsToCreateOrder: {
-        phoneNumber: "2348012345678",
-        bankCode: "120001:02",
-        bankAccountNumber: "1234567890",
-      },
-      transferInstructions: {
-        type: "manual",
-        instructionsText: "Please use the following bank details to make a transfer...",
-        warningText: "Make sure to include the reference code in your transfer.",
-        transferDetails: [
-          {
-            id: "recipientBankName",
-            label: "Bank Name",
-            value: "9Payment Service Bank",
-          },
-          {
-            id: "recipientBankAccountNumber",
-            label: "Account Number",
-            value: "1234567890",
-          },
-          {
-            id: "recipientBankAccountName",
-            label: "Account Name",
-            value: "Example Company Ltd",
-          },
-          {
-            id: "amountToSend",
-            label: "Amount to Send",
-            value: "10000",
-          },
-          {
-            id: "bankTransferNarration",
-            label: "Transfer Narration / Reference",
-            value: "ORDER-5F8D0D55B54764421B7156C5",
-            description: "Use this as the transfer reference.",
-          }
-        ],
-        fieldsToConfirmOrder: [],
-      }
-      
-    },
-    payout: {
-      paymentChannel: "crypto",
-      currencyType: "crypto",
-      currencyCode: "POLYGON_USDT",
-      currencyDetails: {
-        network: "POLYGON",
-        asset: "USDT",
-        networkTitle: "Polygon",
-        assetTitle: "USDT",
-        contractAddress: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
-        decimals: 6,
-        networkIcon: "https://cdn.example.com/networks/polygon.png",
-        assetIcon: "https://cdn.example.com/assets/usdt.png",
-      },
-      cashout: {
-        exchangeRate: 1,
-        exchangeRateAfterFees: 0.9985,
-        amountBeforeFees: 6.5,
-        amountAfterFees: 6.49,
-        amountBeforeFeesUsd: 6.5,
-        amountAfterFeesUsd: 6.49,
-        feeSettings: [
-          {
-            id: "gas-fee",
-            recipient: "blockchain",
-            type: "flat_amount",
-            value: 0.01,
-            min: 0,
-            max: "Infinity",
-          }
-        ],
-        chargedFees: [
-          {
-            id: "gas-fee",
-            type: "flat_amount",
-            recipient: "blockchain",
-            amount: 0.01,
-          }
-        ],
-        chargedFeesUsd: [
-          {
-            id: "gas-fee",
-            type: "flat_amount",
-            recipient: "blockchain",
-            amount: 0.01,
-          }
-        ],
-        totalChargedFees: 0.01,
-        totalChargedFeesUsd: 0.01,
-        chargedFeesPerRecipient: {
-          blockchain: 0.01,
-        },
-        chargedFeesPerRecipientUsd: {
-          blockchain: 0.01,
-        },
-      },
-      fieldsToCreateOrder: [
-        {
-          key: "blockchainWalletAddress",
-          label: 'Your wallet address',
-          required: true,
-          type: "string",
-        }
-      ],
-      providedFieldsToCreateOrder: {
-        blockchainWalletAddress: "0x5b7ae3c6c83F4A3F94b35c77233b13191eBGAD21",
-      }
-    },
-    createdAt: new Date("2025-10-01T12:00:00Z"),
-    updatedAt: new Date("2025-10-01T12:00:00Z"),
-    statusChangeHistory: []
+    //see Get Order response example below
   },
   quoteUsed: true,
 }
@@ -827,6 +604,253 @@ type GetOrderResponse = {
 }
 
 ````
+
+Response example:
+
+```typescript
+const response = {
+  _id: "5f8d0d55b54764421b7156c5",
+  countryIsoCode: "NG",
+  userId: "68628fa56ff494df5f39faf6",
+  userEmail: "user@example.com",
+  merchantOrderParams: "order-12345",
+  status: "payout_pending",
+  deposit: {
+    paymentChannel: "bank",
+    currencyType: "fiat",
+    currencyCode: "NGN",
+    currencyDetails: {
+      countryIsoCode: "NG",
+      countryName: "Nigeria",
+      countryCode: "234",
+      currencySymbol: "₦",
+      countryIcon: "https://cdn.example.com/flags/ng.png",
+      carriers: []
+    },
+    cashout: {
+      exchangeRate: 1500,
+      exchangeRateAfterFees: 1538.46,
+      amountBeforeFees: 10000,
+      amountAfterFees: 9751,
+      amountBeforeFeesUsd: 6.67,
+      amountAfterFeesUsd: 6.5,
+      feeSettings: [
+        {
+          id: "provider-fee",
+          recipient: "provider",
+          type: "flat_amount",
+          value: 50,
+          min: 0,
+          max: "Infinity",
+        },
+        {
+          id: "platform-fee",
+          recipient: "platform",
+          type: "percentage",
+          value: 2,
+          min: 0,
+          max: "Infinity",
+        }
+      ],
+      chargedFees: [
+        {
+          id: "provider-fee",
+          type: "flat_amount",
+          recipient: "provider",
+          amount: 50,
+        },
+        {
+          id: "platform-fee",
+          type: "percentage",
+          recipient: "platform",
+          amount: 199,
+        }
+      ],
+      chargedFeesUsd: [
+        {
+          id: "provider-fee",
+          type: "flat_amount",
+          recipient: "provider",
+          amount: 0.03,
+        },
+        {
+          id: "platform-fee",
+          type: "percentage",
+          recipient: "platform",
+          amount: 0.13,
+        }
+      ],
+      totalChargedFees: 249,
+      totalChargedFeesUsd: 0.16,
+      chargedFeesPerRecipient: {
+        provider: 50,
+        platform: 199,
+      },
+      chargedFeesPerRecipientUsd: {
+        provider: 0.03,
+        platform: 0.13,
+      },
+    },
+    fieldsToCreateOrder: [
+      {
+        key: "phoneNumber",
+        label: 'Phone Number',
+        required: true,
+        type: "phone",
+      },
+      {
+        key: "bankCode",
+        label: 'Bank name',
+        required: true,
+        type: "enum",
+        options: [
+          {
+            "value": "120001:02",
+            "label": "9Payment Service Bank"
+          },
+          {
+            "value": "801:02",
+            "label": "Abbey Mortgage Bank"
+          }
+        ],
+      },
+      {
+        key: "bankAccountNumber",
+        label: 'Bank Account Number',
+        required: true,
+        type: "string",
+      },
+    ],
+    providedFieldsToCreateOrder: {
+      phoneNumber: "2348012345678",
+      bankCode: "120001:02",
+      bankAccountNumber: "1234567890",
+    },
+    transferInstructions: {
+      type: "manual",
+      instructionsText: "Please use the following bank details to make a transfer...",
+      warningText: "Make sure to include the reference code in your transfer.",
+      transferDetails: [
+        {
+          id: "recipientBankName",
+          label: "Bank Name",
+          value: "9Payment Service Bank",
+        },
+        {
+          id: "recipientBankAccountNumber",
+          label: "Account Number",
+          value: "1234567890",
+        },
+        {
+          id: "recipientBankAccountName",
+          label: "Account Name",
+          value: "Example Company Ltd",
+        },
+        {
+          id: "amountToSend",
+          label: "Amount to Send",
+          value: "10000",
+        },
+        {
+          id: "bankTransferNarration",
+          label: "Transfer Narration / Reference",
+          value: "ORDER-5F8D0D55B54764421B7156C5",
+          description: "Use this as the transfer reference.",
+        }
+      ],
+      fieldsToConfirmOrder: [],
+    }
+
+  },
+  payout: {
+    paymentChannel: "crypto",
+    currencyType: "crypto",
+    currencyCode: "POLYGON_USDT",
+    currencyDetails: {
+      network: "POLYGON",
+      asset: "USDT",
+      networkTitle: "Polygon",
+      assetTitle: "USDT",
+      contractAddress: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+      decimals: 6,
+      networkIcon: "https://cdn.example.com/networks/polygon.png",
+      assetIcon: "https://cdn.example.com/assets/usdt.png",
+    },
+    cashout: {
+      exchangeRate: 1,
+      exchangeRateAfterFees: 0.9985,
+      amountBeforeFees: 6.5,
+      amountAfterFees: 6.49,
+      amountBeforeFeesUsd: 6.5,
+      amountAfterFeesUsd: 6.49,
+      feeSettings: [
+        {
+          id: "gas-fee",
+          recipient: "blockchain",
+          type: "flat_amount",
+          value: 0.01,
+          min: 0,
+          max: "Infinity",
+        }
+      ],
+      chargedFees: [
+        {
+          id: "gas-fee",
+          type: "flat_amount",
+          recipient: "blockchain",
+          amount: 0.01,
+        }
+      ],
+      chargedFeesUsd: [
+        {
+          id: "gas-fee",
+          type: "flat_amount",
+          recipient: "blockchain",
+          amount: 0.01,
+        }
+      ],
+      totalChargedFees: 0.01,
+      totalChargedFeesUsd: 0.01,
+      chargedFeesPerRecipient: {
+        blockchain: 0.01,
+      },
+      chargedFeesPerRecipientUsd: {
+        blockchain: 0.01,
+      },
+    },
+    fieldsToCreateOrder: [
+      {
+        key: "blockchainWalletAddress",
+        label: 'Your wallet address',
+        required: true,
+        type: "string",
+      }
+    ],
+    providedFieldsToCreateOrder: {
+      blockchainWalletAddress: "0x5b7ae3c6c83F4A3F94b35c77233b13191eBGAD21",
+    }
+  },
+  createdAt: new Date("2025-10-01T12:00:00Z"),
+  updatedAt: new Date("2025-10-01T12:00:00Z"),
+  statusChangeHistory: [
+    {
+      oldStatus: "deposit_awaiting",
+      newStatus: "deposit_validating",
+      date: new Date("2025-10-01T12:05:00Z"),
+    },
+    {
+      oldStatus: "deposit_validating",
+      newStatus: "deposit_successful",
+      date: new Date("2025-10-01T12:10:00Z"),
+    },
+    {
+      oldStatus: "deposit_successful",
+      newStatus: "payout_pending",
+      date: new Date("2025-10-01T12:15:00Z"),
+    }
+  ]
+}
+```
 
 ### Get merchant balance
 
