@@ -188,6 +188,7 @@ Response type:
 ```typescript
 type QuoteResponse = {
   quoteId: string;
+  quoteExpiresAt: Date;
   deposit: {
     paymentChannel: PaymentChannel;
     currencyType: CurrencyType;
