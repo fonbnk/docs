@@ -407,12 +407,12 @@ const response = {
 
 _**POST** /api/v2/liquidity-bridge/order_
 
-Creates an order to process a deposit and payout based on a quote
+Creates an order to process a deposit and payout based on a quote if provided
 
 Request body:
 ```typescript
 type CreateOrderRequest = {
-  quoteId: string;
+  quoteId?: string;
   userEmail: string; // The email of the user creating the order
   userIp: string; // The IP address of the user creating the order
   deposit: {
