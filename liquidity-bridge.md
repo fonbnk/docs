@@ -700,7 +700,7 @@ type TriggerIntermediateActionRequest = {
 Returns the same response as Get Order (see below)
 
 
-### (Get Order)[#get-order]
+### [Get Order](#get-order)
 
 _**GET** /api/v2/liquidity-bridge/order
 
