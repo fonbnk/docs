@@ -1,9 +1,46 @@
 # Liquidity Bridge API Documentation (WIP)
 
+## Overview
+
+This is a draft API for V2 of the current Fonbnk API for merchants.
+
+In the previous version we had a distinction between "onramp" and "offramp" endpoints with a separate set of endpoints for each, different request and response formats, and different integrations for each.
+In this new version we unify the concepts into a single "Liquidity Bridge" API, and we now operate with the concepts of "deposit" and "payout" instead of "onramp" and "offramp".
+The merchant has the access to the next currency types:
+- Fiat (e.g., NGN, KES, GHS)
+- Crypto (e.g., CELO_CUSD, TRON_USDT, POLYGON_USDT)
+- Merchant Balance (at the moment only in USD)
+
+Merchant then can create orders to deposit one currency type and payout another currency type, for example:
+- Deposit Fiat (NGN) via Bank Transfer, Payout Crypto (POLYGON_USDT)
+- Deposit Crypto (CELO_CUSD) via Crypto Transfer, Payout fiat mobile money (KES)
+- Deposit Merchant Balance (USD) via Merchant Balance, Payout Crypto (TRON_USDT)
+- Deposit Fiat (GHS) via Mobile Money, Payout Merchant Balance (USD)
+- etc.
+
+With the new architecture, a merchant has the access to:
+- off-ramp
+- on-ramp
+- funding their merchant balance from any of the supported deposit methods
+- withdrawing their merchant balance to any of the supported payout methods
+- accepting crypto/fiat payments from users to their merchant balance and then using that balance to payout to any of the supported payout methods
+
+
+## Order flow
+
+1. The merchant calls the "Get Currencies" endpoint to get the list of supported currencies and corresponding pairs.
+2. The merchant calls the "Get Order Limits" endpoint to get the min and max limits for the selected deposit and payout currency pair.
+3. The merchant calls the "Get Quote" endpoint to get a pricing quote for the selected deposit and payout currency pair and amount.
+4. The merchant calls the "Create Order" endpoint to create an order based on the quote (if provided) and the required fields for the deposit and payout.
+5. The user makes the deposit based on the transfer instructions provided in the order response.
+6. If the transfer type requires an intermediate action (e.g., STK Push), the merchant calls the "Trigger Intermediate Action" endpoint to trigger the action with the required fields if needed.
+7. The merchant calls the "Confirm Order" endpoint to confirm the deposit if required.
+8. The order status is updated as the deposit is validated and the payout is processed.
+9. The merchant can call the "Get Order" endpoint to retrieve the order status and details.
 
 ## API endpoints
 
-### [Get currencies](#get-currencies)
+### Get currencies
 
 _**GET** /api/v2/liquidity-bridge/currencies_
 
@@ -53,11 +90,20 @@ const response = [
       assetIcon: "https://cdn.example.com/assets/usdt.png",
     },
     pairs: ["fiat", "merchant_balance"]
+  },
+  {
+    currencyType: "merchant_balance",
+    currencyCode: "USD",
+    paymentChannels: ["merchant_balance"],
+    currencyDetails: {
+      merchantName: "Example Company Ltd",
+    },
+    pairs: ["fiat", "crypto"]
   }
 ]
 ```
 
-### [Get order limits](#get-order-limits)
+### Get order limits
 
 _**GET** /api/v2/liquidity-bridge/order-limits_
 
@@ -115,7 +161,7 @@ const response = {
 }
 ```
 
-### [Get Quote](#get-quote)
+### Get Quote
 _**POST** /api/v2/liquidity-bridge/quote_
 
 Returns pricing quote for a deposit and payout currency pair
@@ -349,7 +395,7 @@ const response = {
 ```
 
 
-### [Create Order](#create-order)
+### Create Order
 
 _**POST** /api/v2/liquidity-bridge/order_
 
@@ -682,7 +728,7 @@ const response = {
 
 ```
 
-### [Trigger intermediate action](#trigger)
+### Trigger intermediate action
 
 _**POST** /api/v2/liquidity-bridge/order/intermediate-action
 
@@ -700,7 +746,36 @@ type TriggerIntermediateActionRequest = {
 Returns the same response as Get Order (see below)
 
 
-### [Get Order](#get-order)
+### Confirm order
+
+_**POST** /api/v2/liquidity-bridge/order/confirm
+
+Confirms a deposit order
+
+Request body:
+```typescript
+type ConfirmOrderRequest = {
+    orderId: string; // The ID of the order to confirm
+}
+```
+
+Returns the same response as Get Order (see below)
+
+
+### [Cancel order](#cancel)
+
+_**POST** /api/v2/liquidity-bridge/order/cancel
+Cancels a deposit order if it is still in a cancellable state
+
+Request body:
+```typescript
+type CancelOrderRequest = {
+    orderId: string; // The ID of the order to cancel
+}
+```
+Returns the same response as Get Order (see below)
+
+### Get Order
 
 _**GET** /api/v2/liquidity-bridge/order
 
@@ -750,7 +825,7 @@ type GetOrderResponse = {
 ````
 The response example is the same as the Create Order response example above.
 
-## [Types used in the above definitions](#types):
+## Types used in the above definitions:
 
 ```typescript
 
