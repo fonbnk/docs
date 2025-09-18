@@ -1830,16 +1830,16 @@ enum FieldType {
 }
 
 enum OrderStatus {
-  DEPOSIT_AWAITING = 'deposit_awaiting',
-  DEPOSIT_EXPIRED = 'deposit_expired',
-  DEPOSIT_CANCELED = 'deposit_canceled',
-  DEPOSIT_VALIDATING = 'deposit_validating',
-  DEPOSIT_INVALID = 'deposit_invalid',
-  DEPOSIT_SUCCESSFUL = 'deposit_successful',
-  PAYOUT_PENDING = 'payout_pending',
-  PAYOUT_SUCCESSFUL = 'payout_successful',
-  PAYOUT_FAILED = 'payout_failed',
-  REFUND_PENDING = 'refund_pending',
+  DEPOSIT_AWAITING = 'deposit_awaiting', // waiting for user to pay
+  DEPOSIT_EXPIRED = 'deposit_expired', // user did not pay in time
+  DEPOSIT_CANCELED = 'deposit_canceled', // user canceled the order
+  DEPOSIT_VALIDATING = 'deposit_validating', // order confirmed by a user, waiting for confirmation
+  DEPOSIT_INVALID = 'deposit_invalid', // deposit failed or was invalid
+  DEPOSIT_SUCCESSFUL = 'deposit_successful', // deposit was successful
+  PAYOUT_PENDING = 'payout_pending', // payout in progress
+  PAYOUT_SUCCESSFUL = 'payout_successful', // user received funds
+  PAYOUT_FAILED = 'payout_failed', 
+  REFUND_PENDING = 'refund_pending', 
   REFUND_SUCCESSFUL = 'refund_successful',
   REFUND_FAILED = 'refund_failed',
 }
