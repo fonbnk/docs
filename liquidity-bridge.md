@@ -693,7 +693,86 @@ In case of the otp_stk_push transfer type, you need to ask the user to provide t
 }
 ```
 
+## Request signing
 
+Endpoints:
+- Sandbox https://sandbox-api.fonbnk.com
+- Production https://api.fonbnk.com
+
+All requests should be signed using a HMAC256 algorithm and provided clientId and clientSecret.
+
+How to get the signature of the request:
+- Generate a timestamp (Epoch Unix Timestamp) in milliseconds
+- Concatenate the timestamp and the endpoint that is called {timestamp}:{endpoint}
+- Decode the base64 encoded clientSecret
+- Compute the SHA256 hash of the concatenated string. Use decoded clientSecret as a key. Convert the result to base64
+- Add the clientId, signature, and timestamp to HTTP headers
+
+The following pseudocode example demonstrates and explains how to sign a request
+
+```pseudocode
+timestamp = CurrentTimestamp();
+stringToSign = timestamp + ":" + endpoint;
+signature = Base64 ( HMAC-SHA256 ( Base64-Decode ( clientSecret ), UTF8 ( concatenatedString ) ) );
+```
+
+Code example in TypeScript:
+
+```typescript
+import crypto from 'crypto';
+const BASE_URL = 'https://api.fonbnk.com';
+const ENDPOINT = '/api/v2/liquidity-bridge/order-limits';
+const CLIENT_ID = '';
+const CLIENT_SECRET = '';
+
+const generateSignature = ({
+  clientSecret,
+  timestamp,
+  endpoint,
+}: {
+  clientSecret: string;
+  timestamp: string;
+  endpoint: string;
+}) => {
+  let hmac = crypto.createHmac('sha256', Buffer.from(clientSecret, 'base64'));
+  let stringToSign = `${timestamp}:${endpoint}`;
+  hmac.update(stringToSign);
+  return hmac.digest('base64');
+};
+
+const main = async () => {
+  const timestamp = new Date().getTime();
+  const queryParams = new URLSearchParams({
+    depositPaymentChannel: 'bank',
+    depositCurrencyType: 'fiat',
+    depositCurrencyCode: 'NGN',
+    payoutPaymentChannel: 'crypto',
+    payoutCurrencyType: 'crypto',
+    payoutCurrencyCode: 'POLYGON_USDT',
+  });
+  const endpoint = `${ENDPOINT}?${queryParams.toString()}`;
+  const signature = generateSignature({
+    clientSecret: CLIENT_SECRET,
+    timestamp: timestamp.toString(),
+    endpoint,
+  });
+  const headers = {
+    'Content-Type': 'application/json',
+    'x-client-id': CLIENT_ID,
+    'x-timestamp': timestamp.toString(),
+    'x-signature': signature,
+  };
+  const response = await fetch(`${BASE_URL}${endpoint}`, {
+    method: 'GET',
+    headers,
+  });
+  const data = await response.json();
+  console.log(JSON.stringify(data, null, 2));
+};
+
+main().catch(console.error);
+
+```
 ## API endpoints
 
 ### Get currencies
