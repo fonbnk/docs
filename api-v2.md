@@ -1511,6 +1511,7 @@ enum OrderStatus {
   DEPOSIT_INVALID = 'deposit_invalid',
   DEPOSIT_SUCCESSFUL = 'deposit_successful',
   DEPOSIT_CANCELED = 'deposit_canceled',
+  DEPOSIT_EXPIRED = 'deposit_expired',
   PAYOUT_PENDING = 'payout_pending',
   PAYOUT_SUCCESSFUL = 'payout_successful',
   PAYOUT_FAILED = 'payout_failed',
@@ -1518,7 +1519,6 @@ enum OrderStatus {
   REFUNDING_PENDING = 'refunding_pending',
   REFUNDING_SUCCESSFUL = 'refunding_successful',
   REFUNDING_FAILED = 'refunding_failed',
-  EXPIRED = 'expired',
 }
 
 enum KycType { BASIC = 'basic', ADVANCED = 'advanced' }
