@@ -1148,6 +1148,11 @@ type GetOrderResponse = {
     cashout: Cashout;
     fieldsToCreateOrder: RequiredField[];
     providedFieldsToCreateOrder: Record<string, string>;
+    transaction?: {
+      meta?: {
+        transactionHash?: string;
+      }
+    }
   },
   createdAt: Date;
   updatedAt: Date;
@@ -1261,6 +1266,11 @@ const response = {
     fieldsToCreateOrder: [ { key: "blockchainWalletAddress", label: 'Your wallet address', required: true, type: "string" } ],
     providedFieldsToCreateOrder: {
       blockchainWalletAddress: "0x5b7ae3c6c83F4A3F94b35c77233b13191eBGAD21",
+    },
+    transaction: {
+      meta: {
+        transactionHash: "0x5f48a98a6af03b590b4c76dfa689c39a18b98fedc23da511c96df7fdfbfbadde",
+      }
     }
   },
   createdAt: new Date("2025-10-01T12:00:00Z"),
