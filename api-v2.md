@@ -1507,15 +1507,14 @@ enum FieldType { NUMBER = 'number', STRING = 'string', DATE = 'date', BOOLEAN = 
 
 enum OrderStatus {
   DEPOSIT_AWAITING = 'deposit_awaiting',
+  DEPOSIT_EXPIRED = 'deposit_expired',
+  DEPOSIT_CANCELED = 'deposit_canceled',
   DEPOSIT_VALIDATING = 'deposit_validating',
   DEPOSIT_INVALID = 'deposit_invalid',
   DEPOSIT_SUCCESSFUL = 'deposit_successful',
-  DEPOSIT_CANCELED = 'deposit_canceled',
-  DEPOSIT_EXPIRED = 'deposit_expired',
   PAYOUT_PENDING = 'payout_pending',
   PAYOUT_SUCCESSFUL = 'payout_successful',
   PAYOUT_FAILED = 'payout_failed',
-  REFUND_INITIATED = 'refund_initiated',
   REFUND_PENDING = 'refund_pending',
   REFUND_SUCCESSFUL = 'refund_successful',
   REFUND_FAILED = 'refund_failed',
