@@ -1,6 +1,6 @@
-# Liquidity Bridge API Documentation (WIP)
+# Fonbnk merchant API V2 Documentation (WIP)
 
-> Draft V2 API for Fonbnk merchants that unifies on-ramp/off-ramp into a single Deposit/Payout flow.
+> Draft API V2 for Fonbnk merchants that unifies on-ramp/off-ramp into a single Deposit/Payout flow.
 
 ## Table of Contents
 
@@ -30,7 +30,7 @@
 This is a draft API for V2 of the current Fonbnk API for merchants.
 
 In the previous version we had a distinction between "onramp" and "offramp" endpoints with a separate set of endpoints
-for each, different request and response formats, and different integrations for each. In this new version we unify the concepts into a single "Liquidity Bridge" API, and we now operate with the concepts
+for each, different request and response formats, and different integrations for each. In this new version we unify the concepts into a uniform API, and we now operate with the concepts
 of "deposit" and "payout" instead of "onramp" and "offramp".
 
 The merchant has the access to these currency types:
@@ -511,7 +511,7 @@ All requests are signed with HMAC-SHA256 using your clientId and clientSecret.
 
 How to compute signature:
 - timestamp = Unix epoch in milliseconds
-- stringToSign = `${timestamp}:${endpoint}` where endpoint includes the path and query string (e.g., `/api/v2/liquidity-bridge/order-limits?foo=bar`)
+- stringToSign = `${timestamp}:${endpoint}` where endpoint includes the path and query string (e.g., `/api/v2/order-limits?foo=bar`)
 - key = Base64-decoded clientSecret
 - signature = Base64(HMAC-SHA256(key, UTF8(stringToSign)))
 - Send headers: x-client-id, x-timestamp, x-signature
@@ -532,7 +532,7 @@ signature = Base64 ( HMAC-SHA256 ( Base64-Decode ( clientSecret ), UTF8 ( concat
 ```typescript
 import crypto from 'crypto';
 const BASE_URL = 'https://api.fonbnk.com';
-const ENDPOINT = '/api/v2/liquidity-bridge/order-limits';
+const ENDPOINT = '/api/v2/order-limits';
 const CLIENT_ID = '';
 const CLIENT_SECRET = '';
 
@@ -589,7 +589,7 @@ main().catch(console.error);
 
 ### Get currencies
 
-_**GET** /api/v2/liquidity-bridge/currencies_
+_**GET** /api/v2/currencies_
 
 Returns supported currencies for deposit and payout with details and available pairs.
 
@@ -659,7 +659,7 @@ const response = [
 
 ### Get order limits
 
-_**GET** /api/v2/liquidity-bridge/order-limits_
+_**GET** /api/v2/order-limits_
 
 Returns min and max order limits for a deposit and payout currency pair.
 
@@ -705,7 +705,7 @@ const response = {
 
 ### Get quote
 
-_**POST** /api/v2/liquidity-bridge/quote_
+_**POST** /api/v2/quote_
 
 Returns a pricing quote for a deposit and payout pair. Provide either deposit.amount or payout.amount (not both).
 
@@ -843,7 +843,7 @@ const response = {
 
 ### Create order
 
-_**POST** /api/v2/liquidity-bridge/order_
+_**POST** /api/v2/order_
 
 Creates an order to process a deposit and payout based on a quote if provided.
 
@@ -942,7 +942,7 @@ const response = {
 
 ### Get user KYC state
 
-_**GET** /api/v2/liquidity-bridge/user/kyc_
+_**GET** /api/v2/user/kyc_
 
 Returns the KYC state of a user. If the user doesn’t exist, it is created and the KYC state is returned. Also returns KYC rules and available documents for the user’s country.
 
@@ -1016,7 +1016,7 @@ const response = {
 
 ### Submit user KYC
 
-_**POST** /api/v2/liquidity-bridge/user/kyc_
+_**POST** /api/v2/user/kyc_
 
 Submits KYC documents for a user. Returns the same structure as [Get user KYC state](#get-user-kyc-state).
 
@@ -1051,7 +1051,7 @@ const requestBody = {
 
 ### Trigger intermediate action
 
-_**POST** /api/v2/liquidity-bridge/order/intermediate-action_
+_**POST** /api/v2/order/intermediate-action_
 
 Triggers an intermediate action for a deposit order (e.g., STK Push or OTP STK Push). Must be called within the timeout and before max attempts are reached.
 
@@ -1079,7 +1079,7 @@ Returns the same structure as [Get order](#get-order).
 
 ### Confirm order
 
-_**POST** /api/v2/liquidity-bridge/order/confirm_
+_**POST** /api/v2/order/confirm_
 
 Confirms a deposit order. If transferInstructions.fieldsToConfirmOrder is non-empty, include them.
 
@@ -1104,7 +1104,7 @@ Returns the same structure as [Get order](#get-order).
 
 ### Cancel order
 
-_**POST** /api/v2/liquidity-bridge/order/cancel_
+_**POST** /api/v2/order/cancel_
 
 Cancels a deposit order if it is still in a cancellable state.
 
@@ -1118,7 +1118,7 @@ Returns the same structure as [Get order](#get-order).
 
 ### Get order
 
-_**GET** /api/v2/liquidity-bridge/order_
+_**GET** /api/v2/order_
 
 Retrieves an order by its ID or merchant order params.
 
@@ -1293,7 +1293,7 @@ const response = {
 
 ### Get orders
 
-_**GET** /api/v2/liquidity-bridge/orders_
+_**GET** /api/v2/orders_
 
 Retrieves a list of orders with cursor pagination and optional filters.
 
@@ -1328,7 +1328,7 @@ type GetOrdersResponse = {
 
 ### Get merchant balance
 
-_**GET** /api/v2/liquidity-bridge/merchant-balance_
+_**GET** /api/v2/merchant-balance_
 
 Returns the current merchant balance (currently only in USD).
 
