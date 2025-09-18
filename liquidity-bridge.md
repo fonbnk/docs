@@ -39,7 +39,7 @@ The merchant has the access to these currency types:
 - Crypto (e.g., CELO_CUSD, TRON_USDT, POLYGON_USDT)
 - Merchant Balance (currently USD)
 
-Merchant can Create orders to deposit one currency type and payout another (or the same) currency type. Examples:
+Merchant can Create orders to deposit one currency type and payout another currency type. Examples:
 
 - Deposit Fiat (NGN) via Bank Transfer, Payout Crypto (POLYGON_USDT)
 - Deposit Crypto (CELO_CUSD) via Crypto Transfer, Payout fiat mobile money (KES)
