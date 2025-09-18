@@ -1749,6 +1749,40 @@ const response = {
 }
 ```
 
+### Get orders
+_**GET** /api/v2/liquidity-bridge/orders_
+
+Retrieves a list of orders with pagination and optional filtering
+
+Query params:
+- cursor: string (optional) - The cursor for pagination
+- limit: number (optional) - The number from 1 to 100, describes how many records should be in each pagination page
+- userEmail: string (optional) - Filter orders by user email
+- status: OrderStatus (optional) - Filter orders by status
+- fromDate: string (optional) - Filter orders created after this date (unix timestamp in milliseconds)
+- toDate: string (optional) - Filter orders created before this date (unix timestamp in milliseconds)
+- depositCurrencyCode: string (optional) - Filter orders by deposit currency code (e.g., "NGN", "KES", "CELO_CUSD", "TRON_USDT")
+- depositPaymentChannel: PaymentChannel (optional) - Filter orders by deposit payment channel (see PaymentChannel)
+- depositCurrencyType: CurrencyType (optional) - Filter orders by deposit currency type (see CurrencyType)
+- payoutCurrencyCode: string (optional) - Filter orders by payout currency code (e.g., "NGN", "KES", "CELO_CUSD", "TRON_USDT")
+- payoutPaymentChannel: PaymentChannel (optional) - Filter orders by payout payment channel (see PaymentChannel)
+- payoutCurrencyType: CurrencyType (optional) - Filter orders by payout currency type (see CurrencyType)
+- depositUserWalletAddress: string (optional) - Filter orders by deposit user wallet address (if deposit is via crypto)
+- payoutUserWalletAddress: string (optional) - Filter orders by payout user wallet address (if payout is via crypto)
+- depositUserPhoneNumber: string (optional) - Filter orders by deposit user phone number (if deposit is via mobile money or airtime)
+- payoutUserPhoneNumber: string (optional) - Filter orders by payout user phone number (if payout is via mobile money or airtime)
+
+Response type:
+
+```typescript
+type GetOrdersResponse = {
+  nextCursor?: string;
+  list: [
+    // see Get Order response example above
+  ]
+}
+```
+
 ### Get merchant balance
 
 _**GET** /api/v2/liquidity-bridge/merchant-balance_
