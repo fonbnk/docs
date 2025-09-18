@@ -12,14 +12,14 @@
 - [API Endpoints](#api-endpoints)
   - [Get currencies](#get-currencies)
   - [Get order limits](#get-order-limits)
-  - [Get Quote](#get-quote)
-  - [Create Order](#create-order)
+  - [Get quote](#get-quote)
+  - [Create order](#create-order)
   - [Get user KYC state](#get-user-kyc-state)
   - [Submit user KYC](#submit-user-kyc)
   - [Trigger intermediate action](#trigger-intermediate-action)
   - [Confirm order](#confirm-order)
   - [Cancel order](#cancel-order)
-  - [Get Order](#get-order)
+  - [Get order](#get-order)
   - [Get orders](#get-orders)
   - [Get merchant balance](#get-merchant-balance)
 - [Types](#types-used-in-the-above-definitions)
@@ -38,7 +38,7 @@ The merchant has the access to these currency types:
 - Crypto (e.g., CELO_CUSD, TRON_USDT, POLYGON_USDT)
 - Merchant Balance (currently USD)
 
-Merchant can create orders to deposit one currency type and payout another (or the same) currency type. Examples:
+Merchant can Create orders to deposit one currency type and payout another (or the same) currency type. Examples:
 
 - Deposit Fiat (NGN) via Bank Transfer, Payout Crypto (POLYGON_USDT)
 - Deposit Crypto (CELO_CUSD) via Crypto Transfer, Payout fiat mobile money (KES)
@@ -60,14 +60,14 @@ With the new architecture, a merchant has access to:
 2. Call [Get order limits](#get-order-limits) for the selected deposit/payout configuration.
 3. Call [Get user KYC state](#get-user-kyc-state) to determine if KYC is required for the intended amounts and currency types.
    - If KYC is required, call [Submit user KYC](#submit-user-kyc) and wait until status is approved.
-4. Call [Get Quote](#get-quote) with the deposit/payout configuration and one side’s amount (deposit.amount or payout.amount, not both).
+4. Call [Get quote](#get-quote) with the deposit/payout configuration and one side’s amount (deposit.amount or payout.amount, not both).
    - Use deposit.fieldsToCreateOrder and payout.fieldsToCreateOrder to collect all required fields from the user.
-5. Call [Create Order](#create-order) with quoteId and the collected fields.
+5. Call [Create order](#create-order) with quoteId and the collected fields.
 6. User completes the deposit per transfer instructions on the order.
 7. If the transfer requires an intermediate action (stk_push / otp_stk_push), call [Trigger intermediate action](#trigger-intermediate-action).
 8. If required, call [Confirm order](#confirm-order) to confirm the deposit.
 9. Track order status as deposit validates and payout processes.
-10. Use [Get Order](#get-order) to poll for status and details at any time.
+10. Use [Get order](#get-order) to poll for status and details at any time.
 
 ## Fiat-to-Crypto Example Flow
 
@@ -310,7 +310,7 @@ Submit via [Submit user KYC](#submit-user-kyc):
 
 Wait until currentKycStatus becomes "approved" (poll [Get user KYC state](#get-user-kyc-state)).
 
-Then [Get Quote](#get-quote):
+Then [Get quote](#get-quote):
 
 <details>
 <summary>Example request</summary>
@@ -399,7 +399,7 @@ To receive 100 POLYGON_USDT, user must deposit 153128 NGN. Collect these fields:
 - bankAccountNumber
 - blockchainWalletAddress
 
-Create the order via [Create Order](#create-order):
+Create the order via [Create order](#create-order):
 
 <details>
 <summary>Example request</summary>
@@ -466,7 +466,7 @@ User makes the transfer with the exact amount and reference. Then call [Confirm 
 ```
 </details>
 
-The system validates the deposit and processes payout. Use [Get Order](#get-order) to track status until "payout_successful".
+The system validates the deposit and processes payout. Use [Get order](#get-order) to track status until "payout_successful".
 
 ## Transfer types explanation
 
@@ -696,7 +696,7 @@ const response = {
 ```
 </details>
 
-### Get Quote
+### Get quote
 
 _**POST** /api/v2/liquidity-bridge/quote_
 
@@ -834,7 +834,7 @@ const response = {
 
 > Note: Always honor quoteExpiresAt. If a quote expires, request a new one before creating the order.
 
-### Create Order
+### Create order
 
 _**POST** /api/v2/liquidity-bridge/order_
 
@@ -926,7 +926,7 @@ const requestBody = {
 
 const response = {
   order: {
-    // see Get Order response example below
+    // see Get order response example below
   },
   quoteUsed: true,
 }
@@ -1068,7 +1068,7 @@ type TriggerIntermediateActionRequest = {
 ```
 </details>
 
-Returns the same structure as [Get Order](#get-order).
+Returns the same structure as [Get order](#get-order).
 
 ### Confirm order
 
@@ -1093,7 +1093,7 @@ type ConfirmOrderRequest = {
 ```
 </details>
 
-Returns the same structure as [Get Order](#get-order).
+Returns the same structure as [Get order](#get-order).
 
 ### Cancel order
 
@@ -1107,9 +1107,9 @@ Request body:
 type CancelOrderRequest = { orderId: string }
 ```
 
-Returns the same structure as [Get Order](#get-order).
+Returns the same structure as [Get order](#get-order).
 
-### Get Order
+### Get order
 
 _**GET** /api/v2/liquidity-bridge/order_
 
