@@ -724,25 +724,24 @@ flowchart TD
     classDef fail fill:#F8C8DC,stroke:#E57373,stroke-width:2px,color:#000,rx:8px,ry:8px
 
     %% Deposit states
-    A[DEPOSIT_AWAITING]:::expectedFlow --> B[DEPOSIT_VALIDATING]:::expectedFlow
-    A --> E2[DEPOSIT_CANCELED]:::fail
-    A --> D2[DEPOSIT_INVALID]:::fail
-    A --> F2[DEPOSIT_EXPIRED]:::fail
-    B --> C[DEPOSIT_SUCCESSFUL]:::expectedFlow
-    B --> D[DEPOSIT_INVALID]:::fail
-    B --> E[DEPOSIT_CANCELED]:::fail
-    B --> F[DEPOSIT_EXPIRED]:::fail
+    A[deposit_awaiting]:::expectedFlow --> B[deposit_validating]:::expectedFlow
+    A --> E2[deposit_canceled]:::fail
+    A --> D2[deposit_invalid]:::fail
+    A --> F2[deposit_expired]:::fail
+    B --> C[deposit_successful]:::expectedFlow
+    B --> D[deposit_invalid]:::fail
+    B --> E[deposit_canceled]:::fail
+    B --> F[deposit_expired]:::fail
 
     %% Payout states
-    C --> G[PAYOUT_PENDING]:::expectedFlow
-    G --> H[PAYOUT_SUCCESSFUL]:::payout
-    G --> I[PAYOUT_FAILED]:::fail
+    C --> G[payout_pending]:::expectedFlow
+    G --> H[payout_successful]:::payout
+    G --> J[payout_failed]:::fail
 
     %% Refund states
-    I --> J[REFUND_INITIATED]:::refund
-    J --> K[REFUND_PENDING]:::refund
-    K --> L[REFUND_SUCCESSFUL]:::refund
-    K --> M[REFUND_FAILED]:::fail
+    J --> K[refund_pending]:::refund
+    K --> L[refund_successful]:::refund
+    K --> M[refund_failed]:::fail
 
 ```
 
