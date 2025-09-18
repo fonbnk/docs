@@ -600,7 +600,7 @@ type CurrenciesResponse = {
     carriers?: { code: string; name: string; }[]
   }[];
   currencyDetails: OrderCurrencyDetails;
-  pairs: (keyof typeof CurrencyType)[] | (CurrencyType)[]; // available counter currency types
+  pairs: CurrencyType[]; // available counter currency types
 }[]
 ```
 
