@@ -31,21 +31,24 @@ With the new architecture, a merchant has the access to:
 - accepting crypto/fiat payments from users to their merchant balance and then using that balance to payout to any of
   the supported payout methods
 
-## Order flow
+## Order flow overview
 
 1. Call "Get Currencies" endpoint to get the list of supported currencies and corresponding pairs
 2. Call "Get Order Limits" endpoint to get the min and max limits for the selected deposit and payout currency pair.
-3. Call "Get Quote" endpoint to get a pricing quote for the selected deposit and payout currency pair and amount. Get
+3. Call "Get user KYC state" endpoint to check if the user needs to complete KYC based on the selected deposit and payout
+   currency types and the order limits. If KYC is required, call "Submit user KYC" endpoint to submit the required KYC
+   documents and wait for approval before proceeding.
+4. Call "Get Quote" endpoint to get a pricing quote for the selected deposit and payout currency pair and amount. Get
    fieldsToCreateOrder from both deposit and payout to know what fields are required to create the order and ask the
    user for those fields.
-4. Call "Create Order" endpoint with the quoteId from the previous step and the fields collected from the user to create
+5. Call "Create Order" endpoint with the quoteId from the previous step and the fields collected from the user to create
    the order.
-5. The user makes the deposit based on the transfer instructions provided in the order response.
-6. If the transfer type requires an intermediate action (init otp stk push by providing otp code or retry stk push), the
+6. The user makes the deposit based on the transfer instructions provided in the order response.
+7. If the transfer type requires an intermediate action (init otp stk push by providing otp code or retry stk push), the
    merchant calls the "Trigger Intermediate Action" endpoint to trigger the action with the required fields if needed.
-7. The merchant calls the "Confirm Order" endpoint to confirm the deposit if required.
-8. The order status is updated as the deposit is validated and the payout is processed.
-9. The merchant can call the "Get Order" endpoint to retrieve the order status and details.
+8. The merchant calls the "Confirm Order" endpoint to confirm the deposit if required.
+9. The order status is updated as the deposit is validated and the payout is processed.
+10. The merchant can call the "Get Order" endpoint to retrieve the order status and details.
 
 ## API endpoints
 
