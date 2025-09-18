@@ -392,7 +392,7 @@ Let's say we received the following response:
     },
     "cashout": {
       "exchangeRate": 1500,
-      "exchangeRateAfterFees": 1469.5059,
+      "exchangeRateAfterFees": 1531.1269,
       "amountBeforeFees": 153128,
       "amountAfterFees": 150015,
       "amountBeforeFeesUsd": 102.085333,
@@ -658,6 +658,40 @@ Once the user has made the transfer, we need to confirm the deposit by calling t
 After calling the "Confirm Order" endpoint, the order status will be updated to "deposit_processing" and the system
 will start validating the deposit. Once the deposit is validated, the payout will be processed and the order status will be updated to "payout_successful".
 You can call the "Get Order" endpoint to retrieve the order status and details at any time.
+
+
+## Transfer types explanation
+
+At this moment we support the following transfer types for deposits:
+- manual - The user needs to manually make a fund transfer using the provided transfer instructions
+- redirect - The user is redirected to a 3rd party payment page to complete the payment
+- ussd - The user needs to dial a USSD code on their phone to complete the payment
+- stk_push - The user receives a push notification on their phone to approve the payment
+- otp_stk_push - The user receives a push notification on their phone to approve the payment, but they need to provide an OTP code to initiate the push
+
+
+Transfer instructions format will differ based on the transfer type, for example:
+- manual - will have transferDetails with the details to make transfer
+- redirect - will have redirectUrl to redirect the user to
+- ussd - will have ussdCode to dial
+- stk_push - will have "intermediate action" fields such as :
+  - - intermediateActionMaxAttempts - max attempts to trigger the action
+  - - intermediateActionAttempts - current attempts made
+  - - intermediateActionNextAttemptAvailableAt - timestamp when the next attempt can be made
+  - - intermediateActionTimeoutMs - minimum time between attempts
+- otp_stk_push - will have the same "intermediate action" with an addition of fieldsForIntermediateAction which will contain the fields required to trigger the action (e.g., otp code)
+
+So, if you've received the stk_push transfer type, you can call the "Trigger Intermediate Action" endpoint to retry the push if the user didn't receive it.
+In case of the otp_stk_push transfer type, you need to ask the user to provide the OTP code they received and call the "Trigger Intermediate Action" endpoint with the provided OTP code to initiate the push, like so:
+
+```json
+{
+  "orderId": "68728fa56ff494df5f39faf5",
+  "fieldsForIntermediateAction": {
+    "otpCode": "123456"
+  }
+}
+```
 
 
 ## API endpoints
