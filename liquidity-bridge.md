@@ -282,7 +282,7 @@ In this example, to payout ≥ 100 USD in crypto, advanced KYC is required. Coll
 - first_name
 - last_name
 - dob (YYYY-MM-DD)
-- images (selfie, front, back)
+- images (selfie, front, back URLs or base64). Use image_type_id: 0 for selfie, 1 for front, 5 for back.
 
 Submit via [Submit user KYC](#submit-user-kyc):
 
