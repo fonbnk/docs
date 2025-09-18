@@ -1000,7 +1000,7 @@ const response = {
   ],
   kycRules: [
     { operationType: 'deposit', currencyType: 'crypto', min: 0, max: 100, type: "basic" },
-    { operationType: 'deposit', currencyType: 'crypto', min: 100, max: 'Infinity', type: "basic" },
+    { operationType: 'deposit', currencyType: 'crypto', min: 100, max: 'Infinity', type: "advanced" },
     { operationType: 'payout', currencyType: 'crypto', min: 0, max: 'Infinity', type: "basic" },
   ]
 }
