@@ -580,6 +580,145 @@ const response = {
 
 ```
 
+### Get user KYC state
+
+_**GET** /api/v2/liquidity-bridge/user/kyc_
+
+Returns the KYC state of a user, if user don't exist, it will create a new user and return the KYC state.
+Also returns the KYC rules and available KYC documents for the user's country.
+
+Query params:
+
+- userEmail: string (required) - The email of the user to get the KYC state for
+- countryIsoCode: string (required) - User's country ISO code (e.g., "NG", "KE", "GH")
+
+Response type:
+
+```typescript
+const queryParams = {
+  userEmail: "user@example.com",
+  countryIsoCode: "NG",
+};
+
+type GetUserKycResponse = {
+  passedKycType?: KycType;
+  reachedKycLimit: boolean; // if true, user can't retry KYC anymore
+  currentKycStatus?: KycStatus;
+  currentKycStatusDescription?: string;
+  kycDocuments: KycDocument[],
+  kycRules: {
+    operationType: OperationType;
+    currencyType: CurrencyType;
+    min: number; // in USD
+    max: number | 'Infinity';
+    type: KycType;
+  }[]
+}
+```
+
+Response example:
+
+```typescript
+const response = {
+  passedKycType: "basic",
+  reachedKycLimit: false,
+  currentKycStatus: "approved",
+  currentKycStatusDescription: "Partial Match",
+  kycDocuments: [
+    {
+      "_id": "67da909b739fc481aa525c43",
+      "type": "basic",
+      "title": "Voter ID",
+      "value": "VOTER_ID",
+      "requiredFields": [
+        {
+          "key": "first_name",
+          "type": "string",
+          "label": "First Name",
+          "required": true
+        },
+        {
+          "key": "last_name",
+          "type": "string",
+          "label": "Last Name",
+          "required": true
+        },
+        {
+          "key": "dob",
+          "type": "date",
+          "label": "Date of birth",
+          "required": true
+        },
+        {
+          "key": "id_number",
+          "type": "string",
+          "label": "ID number",
+          "required": true,
+          "format": "0000000000000000000",
+          "regexp": "^[a-zA-Z0-9 ]{9,29}$",
+          "regexpFlags": "i"
+        }
+      ]
+    },
+    {
+      "_id": "67da93c0dfd3a00f3380b857",
+      "type": "advanced",
+      "title": "Driving License",
+      "value": "DRIVERS_LICENSE",
+      "requiredFields": [
+        {
+          "key": "first_name",
+          "type": "string",
+          "label": "First Name",
+          "required": true
+        },
+        {
+          "key": "last_name",
+          "type": "string",
+          "label": "Last Name",
+          "required": true
+        },
+        {
+          "key": "dob",
+          "type": "date",
+          "label": "Date of birth",
+          "required": true
+        },
+        {
+          "key": "images",
+          "type": "smile-identity-images",
+          "label": "Verification images",
+          "required": true
+        }
+      ]
+    },
+  ],
+  kycRules: [
+    {
+      operationType: 'deposit',
+      currencyType: 'crypto',
+      min: 0,
+      max: 100,
+      type: "basic",
+    },
+    {
+      operationType: 'deposit',
+      currencyType: 'crypto',
+      min: 100,
+      max: 'Infinity',
+      type: "basic",
+    },
+    {
+      operationType: 'payout',
+      currencyType: 'crypto',
+      min: 0,
+      max: 'Infinity',
+      type: "basic",
+    }
+  ]
+}
+```
+
 ### Trigger intermediate action
 
 _**POST** /api/v2/liquidity-bridge/order/intermediate-action_
@@ -955,13 +1094,13 @@ enum PaymentChannel {
   CRYPTO = 'crypto',
 }
 
-export enum CurrencyType {
+enum CurrencyType {
   FIAT = 'fiat',
   CRYPTO = 'crypto',
   MERCHANT_BALANCE = 'merchant_balance',
 }
 
-export type OrderCurrencyDetails =
+type OrderCurrencyDetails =
   | OrderCryptoDetails
   | OrderFiatDetails
   | OrderMerchantDetails;
@@ -993,7 +1132,7 @@ type OrderMerchantDetails = {
   merchantName: string;
 }
 
-export type Cashout = {
+type Cashout = {
   exchangeRate: number;
   feeSettings: FeeSetting[];
   exchangeRateAfterFees: number;
@@ -1048,14 +1187,14 @@ enum FeeType {
   FLAT_AMOUNT = 'flat_amount',
 }
 
-export type TransferInstructions =
+type TransferInstructions =
   | UssdTransferInstructions
   | ManualTransferInstructions
   | RedirectTransferInstructions
   | StkPushTransferInstructions
   | OtpStkPushTransferInstructions;
 
-export type UssdTransferInstructions = {
+type UssdTransferInstructions = {
   type: TransferType.USSD;
   ussdCode: string;
   instructionsText: string;
@@ -1063,14 +1202,14 @@ export type UssdTransferInstructions = {
   transferDetails: TransferDetail[];
   fieldsToConfirmOrder?: RequiredField[];
 };
-export type ManualTransferInstructions = {
+type ManualTransferInstructions = {
   type: TransferType.MANUAL;
   instructionsText: string;
   warningText?: string;
   transferDetails: TransferDetail[];
   fieldsToConfirmOrder: RequiredField[];
 };
-export type RedirectTransferInstructions = {
+type RedirectTransferInstructions = {
   type: TransferType.REDIRECT;
   paymentUrl: string;
   redirectedToPaymentUrl: boolean;
@@ -1081,7 +1220,7 @@ export type RedirectTransferInstructions = {
   fieldsToConfirmOrder: RequiredField[];
 };
 
-export type StkPushTransferInstructions = {
+type StkPushTransferInstructions = {
   type: TransferType.STK_PUSH;
   isIntermediateActionAvailable: boolean;
   intermediateActionButtonText: string;
@@ -1095,7 +1234,7 @@ export type StkPushTransferInstructions = {
   fieldsToConfirmOrder: RequiredField[];
 };
 
-export type OtpStkPushTransferInstructions = {
+type OtpStkPushTransferInstructions = {
   type: TransferType.OTP_STK_PUSH;
   isIntermediateActionAvailable: boolean;
   intermediateActionButtonText: string;
@@ -1110,7 +1249,7 @@ export type OtpStkPushTransferInstructions = {
   fieldsToConfirmOrder: RequiredField[];
 };
 
-export enum TransferType {
+enum TransferType {
   MANUAL = 'manual',
   REDIRECT = 'redirect',
   STK_PUSH = 'stk_push',
@@ -1118,14 +1257,14 @@ export enum TransferType {
   USSD = 'ussd',
 }
 
-export type TransferDetail = {
+type TransferDetail = {
   id: TransferDetailId;
   label: string;
   description?: string;
   value?: string;
 };
 
-export enum TransferDetailId {
+enum TransferDetailId {
   RECIPIENT_WALLET_ADDRESS = 'recipientWalletAddress',
   SENDER_WALLET_ADDRESS = 'senderWalletAddress',
   AMOUNT_TO_SEND = 'amountToSend',
@@ -1137,7 +1276,7 @@ export enum TransferDetailId {
   BANK_TRANSFER_NARRATION = 'bankTransferNarration',
 }
 
-export type RequiredField = {
+type RequiredField = {
   key: string;
   type: FieldType;
   label: string;
@@ -1149,7 +1288,7 @@ export type RequiredField = {
   defaultValue?: string;
 };
 
-export enum FieldType {
+enum FieldType {
   NUMBER = 'number',
   STRING = 'string',
   DATE = 'date',
@@ -1159,7 +1298,7 @@ export enum FieldType {
   ENUM = 'enum',
 }
 
-export enum OrderStatus {
+enum OrderStatus {
   DEPOSIT_AWAITING = 'deposit_awaiting', // Waiting for user to make the deposit
   DEPOSIT_VALIDATING = 'deposit_validating', // Deposit made, waiting for confirmation
   DEPOSIT_INVALID = 'deposit_invalid', // Deposit was invalid (e.g., wrong amount, wrong account)
@@ -1173,6 +1312,64 @@ export enum OrderStatus {
   REFUNDING_SUCCESSFUL = 'refunding_successful',
   REFUNDING_FAILED = 'refunding_failed',
   EXPIRED = 'expired',
+}
+
+enum KycType {
+  BASIC = 'basic',
+  ADVANCED = 'advanced',
+}
+
+export enum KycStatus {
+  INITIATED = 'initiated',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+  INVALID = 'invalid',
+}
+
+type KycDocument = {
+  "_id": string,
+  "title": string,
+  "value": string,
+  "type": KycType,
+  "requiredFields": DynamicField[],
+}
+
+export type DynamicField =
+  | {
+  key: string;
+  type:
+    | 'number'
+    | 'string'
+    | 'date'
+    | 'boolean'
+    | 'email'
+    | 'phone'
+    | 'smile-identity-images';
+  label: string;
+  required: boolean;
+  defaultValue?: string | number | boolean;
+  regexp?: string;
+  regexpFlags?: string;
+  format?: string;
+}
+  | {
+  key: string;
+  type: 'enum';
+  label: string;
+  required: boolean;
+  options: {
+    value: string;
+    label: string;
+  }[];
+  defaultValue?: string;
+  regexp?: string;
+  regexpFlags?: string;
+  format?: string;
+};
+
+enum OperationType {
+  DEPOSIT = 'deposit',
+  PAYOUT = 'payout',
 }
 
 ```
