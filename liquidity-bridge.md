@@ -35,7 +35,8 @@ With the new architecture, a merchant has the access to:
 
 1. Call "Get Currencies" endpoint to get the list of supported currencies and corresponding pairs
 2. Call "Get Order Limits" endpoint to get the min and max limits for the selected deposit and payout currency pair.
-3. Call "Get user KYC state" endpoint to check if the user needs to complete KYC based on the selected deposit and payout
+3. Call "Get user KYC state" endpoint to check if the user needs to complete KYC based on the selected deposit and
+   payout
    currency types and the order limits. If KYC is required, call "Submit user KYC" endpoint to submit the required KYC
    documents and wait for approval before proceeding.
 4. Call "Get Quote" endpoint to get a pricing quote for the selected deposit and payout currency pair and amount. Get
@@ -49,6 +50,615 @@ With the new architecture, a merchant has the access to:
 8. The merchant calls the "Confirm Order" endpoint to confirm the deposit if required.
 9. The order status is updated as the deposit is validated and the payout is processed.
 10. The merchant can call the "Get Order" endpoint to retrieve the order status and details.
+
+## Fiat-to-Crypto Example Flow
+
+Let's try to do a fiat-to-crypto order as an example.
+At first, we need to get the list of supported currencies and pairs by calling the "Get Currencies" endpoint.
+
+Let's say we received the following response:
+
+```json
+[
+  {
+    "currencyType": "fiat",
+    "currencyCode": "NGN",
+    "paymentChannels": [
+      {
+        "type": "bank",
+        "transferTypes": [
+          "manual",
+          "redirect"
+        ],
+        "isDepositAllowed": true,
+        "isPayoutAllowed": true
+      },
+      {
+        "type": "airtime",
+        "transferTypes": [
+          "ussd"
+        ],
+        "carriers": [
+          {
+            "code": "MTN",
+            "name": "MTN"
+          },
+          {
+            "code": "AIRTEL",
+            "name": "Airtel"
+          },
+          {
+            "code": "GLO",
+            "name": "Glo"
+          },
+          {
+            "code": "9MOBILE",
+            "name": "9Mobile"
+          }
+        ],
+        "isDepositAllowed": true,
+        "isPayoutAllowed": false
+      },
+      {
+        "type": "mobile_money",
+        "transferTypes": [
+          "stk_push",
+          "otp_stk_push"
+        ],
+        "carriers": [
+          {
+            "code": "MTN",
+            "name": "MTN Mobile Money"
+          },
+          {
+            "code": "AIRTEL",
+            "name": "Airtel Money"
+          },
+          {
+            "code": "GLO",
+            "name": "Glo Mobile Money"
+          },
+          {
+            "code": "9MOBILE",
+            "name": "9Mobile Money"
+          }
+        ],
+        "isDepositAllowed": true,
+        "isPayoutAllowed": true
+      }
+    ],
+    "currencyDetails": {
+      "countryIsoCode": "NG",
+      "countryName": "Nigeria",
+      "countryCode": "234",
+      "currencySymbol": "₦",
+      "countryIcon": "https://cdn.example.com/flags/ng.png"
+    },
+    "pairs": [
+      "crypto",
+      "merchant_balance"
+    ]
+  },
+  {
+    "currencyType": "crypto",
+    "currencyCode": "POLYGON_USDT",
+    "paymentChannels": [
+      {
+        "type": "crypto",
+        "transferTypes": [
+          "manual"
+        ],
+        "isDepositAllowed": true,
+        "isPayoutAllowed": true
+      }
+    ],
+    "currencyDetails": {
+      "network": "POLYGON",
+      "asset": "USDT",
+      "networkTitle": "Polygon",
+      "assetTitle": "USDT",
+      "contractAddress": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+      "decimals": 6,
+      "networkIcon": "https://cdn.example.com/networks/polygon.png",
+      "assetIcon": "https://cdn.example.com/assets/usdt.png"
+    },
+    "pairs": [
+      "fiat",
+      "merchant_balance"
+    ]
+  }
+]
+
+```
+
+We see that the NGN fiat currency supports deposit via bank, airtime, and mobile money, and payout via bank and mobile
+money.
+We also see that the POLYGON_USDT crypto currency supports both deposit and payout.
+So we can create a fiat-to-crypto order with NGN as the deposit currency and POLYGON_USDT as the payout currency.
+
+Next, we need to get the order limits for this currency pair by calling the "Get Order Limits" endpoint with the
+following query params:
+
+- depositPaymentChannel: "bank"
+- depositCurrencyType: "fiat"
+- depositCurrencyCode: "NGN"
+- payoutPaymentChannel: "crypto"
+- payoutCurrencyType: "crypto"
+- payoutCurrencyCode: "POLYGON_USDT"
+
+Let's say we received the following response:
+
+```json
+{
+  "deposit": {
+    "min": 1556,
+    "max": 311184,
+    "minUsd": 1,
+    "maxUsd": 200
+  },
+  "payout": {
+    "min": 1,
+    "max": 200,
+    "minUsd": 1,
+    "maxUsd": 200
+  }
+}
+```
+
+We see that the minimum deposit amount is 1556 NGN and the maximum is 311184 NGN, which is equivalent to 1 to 200 USD.
+Let's say the user wants to receive 100 POLYGON_USDT.
+
+Next, we need to check the user's KYC state by calling the "Get user KYC state" endpoint with the following query
+params:
+
+- userEmail: "someuser@example.com"
+- countryIsoCode: "NG"
+
+Let's say we received the following response:
+
+```json
+{
+  "passedKycType": null,
+  "reachedKycLimit": false,
+  "currentKycStatus": null,
+  "currentKycStatusDescription": null,
+  "kycDocuments": [
+    {
+      "_id": "67da909b739fc481aa525c43",
+      "type": "basic",
+      "title": "Voter ID",
+      "value": "VOTER_ID",
+      "requiredFields": [
+        {
+          "key": "first_name",
+          "type": "string",
+          "label": "First Name",
+          "required": true
+        },
+        {
+          "key": "last_name",
+          "type": "string",
+          "label": "Last Name",
+          "required": true
+        },
+        {
+          "key": "dob",
+          "type": "date",
+          "label": "Date of birth",
+          "required": true
+        },
+        {
+          "key": "id_number",
+          "type": "string",
+          "label": "ID number",
+          "required": true,
+          "format": "0000000000000000000",
+          "regexp": "^[a-zA-Z0-9 ]{9,29}$",
+          "regexpFlags": "i"
+        }
+      ]
+    },
+    {
+      "_id": "67da93c0dfd3a00f3380b857",
+      "type": "advanced",
+      "title": "Driving License",
+      "value": "DRIVERS_LICENSE",
+      "requiredFields": [
+        {
+          "key": "first_name",
+          "type": "string",
+          "label": "First Name",
+          "required": true
+        },
+        {
+          "key": "last_name",
+          "type": "string",
+          "label": "Last Name",
+          "required": true
+        },
+        {
+          "key": "dob",
+          "type": "date",
+          "label": "Date of birth",
+          "required": true
+        },
+        {
+          "key": "images",
+          "type": "smile-identity-images",
+          "label": "Verification images",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "kycRules": [
+    {
+      "operationType": "deposit",
+      "currencyType": "crypto",
+      "min": 0,
+      "max": 100,
+      "type": "basic"
+    },
+    {
+      "operationType": "payout",
+      "currencyType": "crypto",
+      "min": 100,
+      "max": "Infinity",
+      "type": "basic"
+    }
+  ]
+}
+```
+
+We see that the user has not passed any KYC yet. We also see that the user needs to pass the advanced KYC to be able to
+payout crypto amounts from 100 USD.
+So we need to ask the user to submit an advanced KYC document. We must ask a user to provide the following fields:
+
+- first_name
+- last_name
+- dob (date of birth, format: YYYY-MM-DD)
+- images. It requires you to submit a photos of both sides of user's document and a user's selfie. Let's imagine that
+  you took these photos and uploaded to the file storage under these
+  URLs: https://cdn.com/selfie.jpg, https://cdn.com/front.jpg, https://cdn.com/back.jpg,
+
+After collecting these fields from the user, we can call the "Submit user KYC" endpoint with the following request body:
+
+```json
+{
+  "userEmail": "someuser@example.com",
+  "countryIsoCode": "NG",
+  "documentId": "67da93c0dfd3a00f3380b857",
+  "userFields": {
+    "first_name": "John",
+    "last_name": "Doe",
+    "dob": "1990-01-01",
+    "images": [
+      {
+        "image_type_id": 0,
+        "image": "https://cdn.com/selfie.jpg"
+      },
+      {
+        "image_type_id": 1,
+        "image": "https://cdn.com/front.jpg"
+      },
+      {
+        "image_type_id": 5,
+        "image": "https://cdn.com/back.jpg"
+      }
+    ]
+  }
+}
+```
+
+After the KYC is submitted, we need to wait for it to be approved before proceeding. We can poll the "Get user KYC
+state" endpoint until the currentKycStatus becomes "approved". If the KYC is rejected, we need to ask the user to submit
+a different document.
+If the reachedKycLimit becomes true, the user can't retry KYC anymore and you must contact support.
+Once the KYC is approved, we can proceed to get a quote for the order by calling the "Get Quote" endpoint with the
+following request body:
+
+```json
+{
+  "deposit": {
+    "paymentChannel": "bank",
+    "currencyType": "fiat",
+    "currencyCode": "NGN"
+  },
+  "payout": {
+    "paymentChannel": "crypto",
+    "currencyType": "crypto",
+    "currencyCode": "POLYGON_USDT",
+    "amount": 100
+  }
+}
+```
+
+Let's say we received the following response:
+
+```json
+{
+  "quoteId": "68628fa56ff494df5f39faf5",
+  "quoteExpiresAt": "2024-10-10T10:10:10.000Z",
+  "deposit": {
+    "paymentChannel": "bank",
+    "currencyType": "fiat",
+    "currencyCode": "NGN",
+    "currencyDetails": {
+      "countryIsoCode": "NG",
+      "countryName": "Nigeria",
+      "countryCode": "234",
+      "currencySymbol": "₦",
+      "countryIcon": "https://cdn.example.com/flags/ng.png"
+    },
+    "cashout": {
+      "exchangeRate": 1500,
+      "exchangeRateAfterFees": 1469.5059,
+      "amountBeforeFees": 153128,
+      "amountAfterFees": 150015,
+      "amountBeforeFeesUsd": 102.085333,
+      "amountAfterFeesUsd": 100.01,
+      "chargedFees": [
+        {
+          "id": "provider_fee",
+          "type": "flat_amount",
+          "recipient": "provider",
+          "amount": 50
+        },
+        {
+          "id": "platform_fee",
+          "type": "percentage",
+          "recipient": "platform",
+          "amount": 3063
+        }
+      ],
+      "chargedFeesUsd": [
+        {
+          "id": "provider_fee",
+          "type": "flat_amount",
+          "recipient": "provider",
+          "amount": 0.033333
+        },
+        {
+          "id": "platform_fee",
+          "type": "percentage",
+          "recipient": "platform",
+          "amount": 2.042
+        }
+      ],
+      "totalChargedFees": 3113,
+      "totalChargedFeesUsd": 2.075333,
+      "chargedFeesPerRecipient": {
+        "provider": 50,
+        "platform": 3063
+      },
+      "chargedFeesPerRecipientUsd": {
+        "provider": 0.033333,
+        "platform": 2.042
+      },
+      "feeSettings": [
+        {
+          "id": "provider_fee",
+          "recipient": "provider",
+          "type": "flat_amount",
+          "value": 50,
+          "min": 0,
+          "max": "Infinity"
+        },
+        {
+          "id": "platform_fee",
+          "recipient": "platform",
+          "type": "percentage",
+          "value": 2,
+          "min": 0,
+          "max": "Infinity"
+        }
+      ]
+    },
+    "fieldsToCreateOrder": [
+      {
+        "key": "phoneNumber",
+        "label": "Phone Number",
+        "required": true,
+        "type": "phone"
+      },
+      {
+        "key": "bankCode",
+        "label": "Bank name",
+        "required": true,
+        "type": "enum",
+        "options": [
+          {
+            "value": "120001:02",
+            "label": "9Payment Service Bank"
+          },
+          {
+            "value": "801:02",
+            "label": "Abbey Mortgage Bank"
+          }
+        ]
+      },
+      {
+        "key": "bankAccountNumber",
+        "label": "Bank Account Number",
+        "required": true,
+        "type": "string"
+      }
+    ],
+    "transferType": "manual"
+  },
+  "payout": {
+    "paymentChannel": "crypto",
+    "currencyType": "crypto",
+    "currencyCode": "POLYGON_USDT",
+    "currencyDetails": {
+      "network": "POLYGON",
+      "asset": "USDT",
+      "networkTitle": "Polygon",
+      "assetTitle": "USDT",
+      "contractAddress": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+      "decimals": 6,
+      "networkIcon": "https://cdn.example.com/networks/polygon.png",
+      "assetIcon": "https://cdn.example.com/assets/usdt.png"
+    },
+    "cashout": {
+      "exchangeRate": 1,
+      "exchangeRateAfterFees": 1.001,
+      "amountBeforeFees": 100.01,
+      "amountAfterFees": 100,
+      "amountBeforeFeesUsd": 100.01,
+      "amountAfterFeesUsd": 100,
+      "feeSettings": [
+        {
+          "id": "gas_fee",
+          "recipient": "blockchain",
+          "type": "flat_amount",
+          "value": 0.01,
+          "min": 0,
+          "max": "Infinity"
+        }
+      ],
+      "chargedFees": [
+        {
+          "id": "gas_fee",
+          "type": "flat_amount",
+          "recipient": "blockchain",
+          "amount": 0.01
+        }
+      ],
+      "chargedFeesUsd": [
+        {
+          "id": "gas_fee",
+          "type": "flat_amount",
+          "recipient": "blockchain",
+          "amount": 0.01
+        }
+      ],
+      "totalChargedFees": 0.01,
+      "totalChargedFeesUsd": 0.01,
+      "chargedFeesPerRecipient": {
+        "blockchain": 0.01
+      },
+      "chargedFeesPerRecipientUsd": {
+        "blockchain": 0.01
+      }
+    },
+    "fieldsToCreateOrder": [
+      {
+        "key": "blockchainWalletAddress",
+        "label": "Your wallet address",
+        "required": true,
+        "type": "string"
+      }
+    ]
+  }
+}
+```
+
+We see that in order to receive 100 POLYGON_USDT, the user needs to deposit 153128 NGN. Also we see that both deposit
+and payout require some fields to be provided when creating the order.
+So we need to ask the user to provide the following fields:
+
+- phoneNumber
+- bankCode (from the provided enum options)
+- bankAccountNumber
+- blockchainWalletAddress
+
+After collecting these fields from the user, we can call the "Create Order" endpoint with the following request body:
+
+```json
+{
+  "quoteId": "68628fa56ff494df5f39faf5",
+  "userEmail": "someuser@example.com",
+  "userIp": "174.3.2.22",
+  "deposit": {
+    "paymentChannel": "bank",
+    "currencyType": "fiat",
+    "currencyCode": "NGN"
+  },
+  "payout": {
+    "paymentChannel": "crypto",
+    "currencyType": "crypto",
+    "currencyCode": "POLYGON_USDT",
+    "amount": 100
+  },
+  "fieldsToCreateOrder": {
+    "phoneNumber": "2348012345678",
+    "bankCode": "120001:02",
+    "bankAccountNumber": "1234567890",
+    "blockchainWalletAddress": "0x5b7ae3c6c83F4A3F94b35c77233b13191eBGAD21"
+  }
+}
+```
+
+Let's say we received the following response:
+
+```typescript
+const response = {
+  "order": {
+    "_id": "68728fa56ff494df5f39faf5",
+    "countryIsoCode": "NG",
+    "userId": "57a28fa56ff494df5f39faf5",
+    "userEmail": "someuser@example.com",
+    "status": "deposit_awaiting",
+    "deposit": {
+      //...
+      transferInstructions: {
+        type: "manual",
+        instructionsText: "Please use the following bank details to make a transfer...",
+        warningText: "Make sure to include the reference code in your transfer.",
+        transferDetails: [
+          {
+            id: "recipientBankName",
+            label: "Bank Name",
+            value: "9Payment Service Bank",
+          },
+          {
+            id: "recipientBankAccountNumber",
+            label: "Account Number",
+            value: "1234567890",
+          },
+          {
+            id: "recipientBankAccountName",
+            label: "Account Name",
+            value: "Example Company Ltd",
+          },
+          {
+            id: "amountToSend",
+            label: "Amount to Send",
+            value: "153128",
+          },
+          {
+            id: "bankTransferNarration",
+            label: "Transfer Narration / Reference",
+            value: "ORDER-5F8D0D55B54764421B7156C5",
+            description: "Use this as the transfer reference.",
+          }
+        ],
+        fieldsToConfirmOrder: [],
+      }
+    },
+    "payout": {
+      //...
+    }
+  }
+}
+```
+
+Order is now created and we have received the transfer instructions for the deposit.
+Now the user needs to make a bank transfer of 153128 NGN to the provided bank account details with the provided
+transfer narration/reference.
+Once the user has made the transfer, we need to confirm the deposit by calling the "Confirm Order" endpoint, this order doesn't require any additional fields to be provided for confirmation so we can call it right away.
+
+```json
+{
+  "orderId": "68728fa56ff494df5f39faf5"
+}
+```
+
+After calling the "Confirm Order" endpoint, the order status will be updated to "deposit_processing" and the system
+will start validating the deposit. Once the deposit is validated, the payout will be processed and the order status will be updated to "payout_successful".
+You can call the "Get Order" endpoint to retrieve the order status and details at any time.
+
 
 ## API endpoints
 
@@ -723,6 +1333,7 @@ const response = {
 ```
 
 ### Submit user KYC
+
 _**POST** /api/v2/liquidity-bridge/user/kyc_
 
 Submits KYC documents for a user
@@ -732,7 +1343,7 @@ Request body:
 ```typescript
 type SubmitUserKycRequest = {
   userEmail: string;
-  countryIsoCode: string; 
+  countryIsoCode: string;
   documentId: string;
   userFields: Record<string, string>;
 }
@@ -756,7 +1367,6 @@ const requestBody = {
 ```
 
 Returns the same response as Get user KYC state (see above)
-
 
 ### Trigger intermediate action
 
