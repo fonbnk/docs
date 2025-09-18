@@ -7,6 +7,7 @@
 - [Overview](#overview)
 - [Order Flow Overview](#order-flow-overview)
 - [Fiat-to-Crypto Example Flow](#fiat-to-crypto-example-flow)
+- [Crypto-to-Fiat](#crypto-to-fiat)
 - [Transfer Types Explanation](#transfer-types-explanation)
 - [Authentication & Request Signing](#authentication--request-signing)
 - [API Endpoints](#api-endpoints)
@@ -467,6 +468,12 @@ User makes the transfer with the exact amount and reference. Then call [Confirm 
 </details>
 
 The system validates the deposit and processes payout. Use [Get order](#get-order) to track status until "payout_successful".
+
+## Crypto-to-Fiat
+
+The flow is similar for fiat-to-crypto. The only difference is that when you confirm the order, you need to provide the transaction hash of the crypto deposit transaction in fieldsToConfirmOrder.
+
+
 
 ## Transfer types explanation
 
