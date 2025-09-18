@@ -1515,10 +1515,10 @@ enum OrderStatus {
   PAYOUT_PENDING = 'payout_pending',
   PAYOUT_SUCCESSFUL = 'payout_successful',
   PAYOUT_FAILED = 'payout_failed',
-  REFUNDING_INITIATED = 'refunding_initiated',
-  REFUNDING_PENDING = 'refunding_pending',
-  REFUNDING_SUCCESSFUL = 'refunding_successful',
-  REFUNDING_FAILED = 'refunding_failed',
+  REFUND_INITIATED = 'refund_initiated',
+  REFUND_PENDING = 'refund_pending',
+  REFUND_SUCCESSFUL = 'refund_successful',
+  REFUND_FAILED = 'refund_failed',
 }
 
 enum KycType { BASIC = 'basic', ADVANCED = 'advanced' }
