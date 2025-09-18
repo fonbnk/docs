@@ -1640,7 +1640,7 @@ Retrieves a list of orders with cursor pagination and optional filters.
 Query params:
 
 - cursor: string (optional)
-- limit: number (optional, 1–100)
+- limit: number (required, 1–100)
 - userEmail: string (optional)
 - status: OrderStatus (optional)
 - fromDate: string (optional, unix ms)
