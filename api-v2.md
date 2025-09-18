@@ -9,7 +9,7 @@
 - [Fiat-to-Crypto Example Flow](#fiat-to-crypto-example-flow)
 - [Crypto-to-Fiat](#crypto-to-fiat)
 - [Transfer Types Explanation](#transfer-types-explanation)
-- [Order Statuses Flow](#order-statuses-flow)
+- [Order Statuses Flow](#order-statuses)
 - [Authentication & Request Signing](#authentication--request-signing)
 - [API Endpoints](#api-endpoints)
     - [Get currencies](#get-currencies)
@@ -713,7 +713,7 @@ Cross-links:
 - For stk_push/otp_stk_push retries or OTP submission, see [Trigger intermediate action](#trigger-intermediate-action).
 - For cases where confirmation fields are required post-deposit, see [Confirm order](#confirm-order).
 
-## Order statuses flow
+## Order statuses
 
 ```mermaid
 flowchart TD
@@ -745,6 +745,20 @@ flowchart TD
     K --> M[REFUND_FAILED]:::fail
 
 ```
+
+Statuses explanation:
+- deposit_awaiting – waiting for a user to make the deposit
+- deposit_validating – user confirmed deposit, validating
+- deposit_invalid – deposit was invalid (e.g., wrong amount, wrong reference)
+- deposit_successful – deposit validated successfully, initiating payout
+- deposit_canceled – order was canceled by a user before deposit was made
+- deposit_expired – deposit was not made in time
+- payout_pending – payout is being processed
+- payout_successful – payout completed successfully
+- payout_failed – payout failed (e.g., invalid wallet address, blockchain failure)
+- refund_pending – refund is being processed
+- refund_successful – refund completed successfully
+- refund_failed – refund failed (e.g., bank rejection, blockchain failure)
 
 ## Authentication & Request Signing
 
