@@ -9,6 +9,7 @@
 - [Fiat-to-Crypto Example Flow](#fiat-to-crypto-example-flow)
 - [Crypto-to-Fiat](#crypto-to-fiat)
 - [Transfer Types Explanation](#transfer-types-explanation)
+- [Order Statuses Flow](#order-statuses-flow)
 - [Authentication & Request Signing](#authentication--request-signing)
 - [API Endpoints](#api-endpoints)
     - [Get currencies](#get-currencies)
@@ -711,6 +712,39 @@ Cross-links:
 
 - For stk_push/otp_stk_push retries or OTP submission, see [Trigger intermediate action](#trigger-intermediate-action).
 - For cases where confirmation fields are required post-deposit, see [Confirm order](#confirm-order).
+
+## Order statuses flow
+
+```mermaid
+flowchart TD
+    %% Pastel Styles
+    classDef expectedFlow fill:#B5E3FF,stroke:#4A90E2,stroke-width:2px,color:#000,rx:8px,ry:8px
+    classDef payout fill:#C5F7C1,stroke:#4CAF50,stroke-width:2px,color:#000,rx:8px,ry:8px
+    classDef refund fill:#FFE5B4,stroke:#FF9800,stroke-width:2px,color:#000,rx:8px,ry:8px
+    classDef fail fill:#F8C8DC,stroke:#E57373,stroke-width:2px,color:#000,rx:8px,ry:8px
+
+    %% Deposit states
+    A[DEPOSIT_AWAITING]:::expectedFlow --> B[DEPOSIT_VALIDATING]:::expectedFlow
+    A --> E2[DEPOSIT_CANCELED]:::fail
+    A --> D2[DEPOSIT_INVALID]:::fail
+    A --> F2[DEPOSIT_EXPIRED]:::fail
+    B --> C[DEPOSIT_SUCCESSFUL]:::expectedFlow
+    B --> D[DEPOSIT_INVALID]:::fail
+    B --> E[DEPOSIT_CANCELED]:::fail
+    B --> F[DEPOSIT_EXPIRED]:::fail
+
+    %% Payout states
+    C --> G[PAYOUT_PENDING]:::expectedFlow
+    G --> H[PAYOUT_SUCCESSFUL]:::payout
+    G --> I[PAYOUT_FAILED]:::fail
+
+    %% Refund states
+    I --> J[REFUND_INITIATED]:::refund
+    J --> K[REFUND_PENDING]:::refund
+    K --> L[REFUND_SUCCESSFUL]:::refund
+    K --> M[REFUND_FAILED]:::fail
+
+```
 
 ## Authentication & Request Signing
 
