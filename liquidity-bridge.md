@@ -719,6 +719,42 @@ const response = {
 }
 ```
 
+### Submit user KYC
+_**POST** /api/v2/liquidity-bridge/user/kyc_
+
+Submits KYC documents for a user
+
+Request body:
+
+```typescript
+type SubmitUserKycRequest = {
+  userEmail: string;
+  countryIsoCode: string; 
+  documentId: string;
+  userFields: Record<string, string>;
+}
+```
+
+Request example:
+
+```typescript
+const requestBody = {
+  userEmail: "user@example.com",
+  countryIsoCode: "NG",
+  documentId: "67da909b739fc481aa525c43",
+  userFields: {
+    first_name: "John",
+    last_name: "Doe",
+    dob: "1990-01-01",
+    id_number: "A123456789",
+  }
+}
+
+```
+
+Returns the same response as Get user KYC state (see above)
+
+
 ### Trigger intermediate action
 
 _**POST** /api/v2/liquidity-bridge/order/intermediate-action_
@@ -754,7 +790,7 @@ type ConfirmOrderRequest = {
 
 Returns the same response as Get Order (see below)
 
-### [Cancel order](#cancel)
+### Cancel order
 
 _**POST** /api/v2/liquidity-bridge/order/cancel_
 Cancels a deposit order if it is still in a cancellable state
