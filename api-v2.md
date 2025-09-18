@@ -1848,9 +1848,9 @@ enum KycType { BASIC = 'basic', ADVANCED = 'advanced' }
 
 enum KycStatus { INITIATED = 'initiated', APPROVED = 'approved', REJECTED = 'rejected', INVALID = 'invalid' }
 
-type KycDocument = { _id: string; title: string; value: string; type: KycType; requiredFields: DynamicField[] }
+type KycDocument = { _id: string; title: string; value: string; type: KycType; requiredFields: DocumentField[] }
 
-type DynamicField =
+type DocumentField =
   | {
   key: string;
   type: 'number' | 'string' | 'date' | 'boolean' | 'email' | 'phone' | 'smile-identity-images';
