@@ -1170,7 +1170,6 @@ type CreateOrderRequest = {
     amount?: number;
   };
   fieldsToCreateOrder: Record<string, any>; // union of required fields from deposit and payout
-  redirectUrl?: string; // for redirect transfer type
   orderParams?: string; // merchant-defined reference
   callbackUrl?: string; // button URL on status page in the widget
 }
