@@ -1152,6 +1152,7 @@ Request body:
 ```typescript
 type CreateOrderRequest = {
   quoteId?: string;
+  userCountryIsoCode: string; 
   userEmail: string;
   userIp: string;
   deposit: {
@@ -1220,6 +1221,7 @@ type CreateOrderResponse = {
 const requestBody = {
   quoteId: "68628fa56ff494df5f39faf5",
   userEmail: "user@example.com",
+  userCountryIsoCode: "NG",
   userIp: "143.0.2.4",
   deposit: {paymentChannel: "bank", currencyType: "fiat", currencyCode: "NGN", amount: 10000},
   payout: {paymentChannel: "crypto", currencyType: "crypto", currencyCode: "POLYGON_USDT"},
@@ -1482,7 +1484,8 @@ type GetOrderResponse = {
   },
   createdAt: Date;
   updatedAt: Date;
-  statusChangeHistory: { oldStatus: OrderStatus; newStatus: OrderStatus; date: Date; }[]
+  expiresAt: Date;
+  statusChangeLogs: { oldStatus: OrderStatus; newStatus: OrderStatus; date: Date; }[]
 }
 ```
 
