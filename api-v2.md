@@ -1260,6 +1260,7 @@ Response type:
 type GetUserKycResponse = {
   passedKycType?: KycType;
   reachedKycLimit: boolean;
+  currentKycType?: KycType;
   currentKycStatus?: KycStatus;
   currentKycStatusDescription?: string;
   kycDocuments: KycDocument[],
@@ -1280,6 +1281,7 @@ type GetUserKycResponse = {
 const response = {
   passedKycType: "basic",
   reachedKycLimit: false,
+  currentKycType: "basic",
   currentKycStatus: "approved",
   currentKycStatusDescription: "Partial Match",
   kycDocuments: [
