@@ -1339,7 +1339,6 @@ Request body:
 ```typescript
 type SubmitUserKycRequest = {
   userEmail: string;
-  countryIsoCode: string;
   documentId: string;
   userFields: Record<string, any>;
 }
@@ -1351,7 +1350,6 @@ type SubmitUserKycRequest = {
 ```typescript
 const requestBody = {
   userEmail: "user@example.com",
-  countryIsoCode: "NG",
   documentId: "67da909b739fc481aa525c43",
   userFields: {
     first_name: "John",
