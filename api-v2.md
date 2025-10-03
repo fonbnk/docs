@@ -991,27 +991,50 @@ Request example:
 
 </details>
 
-### Webhook verification
+### Webhook Verification
 
-We send a hash field in our webhook to protect merchants from fraudulent requests. Each request should be verified by a secret provided in the dashboard.
-The signature header is called "x-signature".
-Here is how it should be checked in pseudocode:
+We send a signature with each webhook request to protect merchants from fraudulent requests. Each request should be verified using a secret provided in the merchant dashboard.
+
+**The signature is sent in the `x-signature` HTTP header.**
+
+The signature is computed as follows:
 
 ```pseudocode
-request.body.hash === SHA256(stringify(request.body.data), secret)
+x-signature === SHA256(SHA256(secret) + JSON.stringify(request.body.data))
 ```
 
-Typescript example:
+**TypeScript example:**
 
 ```typescript
 import { createHash } from 'crypto';
 
-request.body.hash === createHash('sha256')
-   .update(JSON.stringify(request.body.data))
-   .update(createHash('sha256').update(__SECRET__, 'utf8').digest('hex'))
-   .digest('hex');
+function verifyWebhookSignature(
+  requestBody: any,
+  signature: string,
+  secret: string
+): boolean {
+  const expectedSignature = createHash('sha256')
+    .update(JSON.stringify(requestBody.data))
+    .update(createHash('sha256').update(secret, 'utf8').digest('hex'))
+    .digest('hex');
+  
+  return signature === expectedSignature;
+}
 ```
 
+### Webhook Response Requirements
+
+Your webhook endpoint must:
+- Respond with HTTP status code **200** to acknowledge receipt
+- Respond within **20 seconds** (requests taking longer will timeout)
+
+Any other status code or timeout will be considered a failure.
+
+### Retry Policy
+
+If your webhook endpoint fails to respond successfully:
+- We will retry up to **10 times**
+- Failed webhooks can be viewed in the merchant dashboard
 
 ## API endpoints
 
@@ -1217,7 +1240,7 @@ const response = {
       countryName: "Nigeria",
       countryCode: "234",
       currencySymbol: "₦",
-      countryIcon: "https://cdn.example.com/flags/ng.png",
+      currencyIcon: "https://cdn.example.com/flags/ng.png",
     },
     cashout: {
       exchangeRate: 1500,
@@ -2049,7 +2072,7 @@ enum OrderStatus {
   DEPOSIT_CANCELED = 'deposit_canceled', // user canceled the order
   DEPOSIT_VALIDATING = 'deposit_validating', // order confirmed by a user, waiting for confirmation
   DEPOSIT_INVALID = 'deposit_invalid', // deposit failed or was invalid
-  DEPOSIT_SUCCESSFUL = 'deposit_successful', // deposit was successful
+  DEPOSIT_SUCCESSFUL = 'deposit_successful', // deposit validated successfully
   PAYOUT_PENDING = 'payout_pending', // payout in progress
   PAYOUT_SUCCESSFUL = 'payout_successful', // user received funds
   PAYOUT_FAILED = 'payout_failed', 
