@@ -1034,6 +1034,7 @@ Any other status code or timeout will be considered a failure.
 
 If your webhook endpoint fails to respond successfully:
 - We will retry up to **10 times**
+- Retries will be attempted with exponential backoff: 1sec, 2sec, 4sec, 8sec, 16sec, 32sec, 64sec, 128sec, 256sec, 512sec
 - Failed webhooks can be viewed in the merchant dashboard
 
 ## API endpoints
