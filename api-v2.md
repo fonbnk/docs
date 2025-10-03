@@ -1025,7 +1025,7 @@ function verifyWebhookSignature(
 ### Webhook Response Requirements
 
 Your webhook endpoint must:
-- Respond with HTTP status code **200** to acknowledge receipt
+- Respond with HTTP status code **2xx** to acknowledge receipt
 - Respond within **20 seconds** (requests taking longer will timeout)
 
 Any other status code or timeout will be considered a failure.
