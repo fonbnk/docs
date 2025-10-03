@@ -11,6 +11,8 @@
 - [Transfer Types Explanation](#transfer-types-explanation)
 - [Order Statuses Flow](#order-statuses)
 - [Authentication & Request Signing](#authentication--request-signing)
+- [Webhooks](#webhooks)
+    - [Webhook Verification](#webhook-verification)
 - [API Endpoints](#api-endpoints)
     - [Get currencies](#get-currencies)
     - [Get order limits](#get-order-limits)
@@ -849,6 +851,168 @@ main().catch(console.error);
 
 </details>
 
+## Webhooks
+
+There are 2 ways to get notified of order status changes via webhooks:
+1. Global webhook URL set in the merchant dashboard (applies to all orders)
+2. Per-order webhookUrl field when creating an order (overrides global URL for that order)
+
+When an order status changes, a POST request is sent to the webhook URL with the following payload:
+
+<details>
+<summary>Webhooks type</summary>
+
+```typescript
+type Webhook = {
+  event: 'order-status-change';
+  data: {
+    order: {
+      userId: string;
+      userEmail: string;
+      merchantOrderParams?: string;
+      countryIsoCode: string;
+      flow: FlowType;
+      type: OrderType;
+      source: Source;
+      status: OrderStatus;
+      deposit: {
+        paymentChannel: PaymentChannel;
+        currencyType: CurrencyType;
+        currencyCode: string;
+        cashout: {
+          exchangeRate: number;
+          exchangeRateAfterFees: number;
+          amountBeforeFees: number;
+          amountAfterFees: number;
+          amountBeforeFeesUsd: number;
+          amountAfterFeesUsd: number;
+        };
+      };
+      payout: {
+        paymentChannel: PaymentChannel;
+        currencyType: CurrencyType;
+        currencyCode: string;
+        cashout: {
+          exchangeRate: number;
+          exchangeRateAfterFees: number;
+          amountBeforeFees: number;
+          amountAfterFees: number;
+          amountBeforeFeesUsd: number;
+          amountAfterFeesUsd: number;
+        };
+        transaction?: {
+          meta?: {
+            transactionHash?: string;
+          };
+        };
+      };
+      refund?: {
+        paymentChannel: PaymentChannel;
+        currencyType: CurrencyType;
+        currencyCode: string;
+        cashout: {
+          exchangeRate: number;
+          exchangeRateAfterFees: number;
+          amountBeforeFees: number;
+          amountAfterFees: number;
+          amountBeforeFeesUsd: number;
+          amountAfterFeesUsd: number;
+        };
+        transaction?: {
+          meta?: {
+            transactionHash?: string;
+          };
+        };
+      };
+      createdAt: Date;
+      updatedAt: Date;
+    };
+    userKyc?: {
+      passedKycType?: KycType;
+      passedKycHash?: string; // unique KYC submission identifier
+      latestKycType?: KycType;
+      latestKycStatus?: KycStatus;
+    };
+  };
+}
+```
+</details>
+
+Request example:
+
+<details>
+<summary>Example payload</summary>
+
+```json
+{
+  "event": "order-status-change",
+  "data": {
+    "order": {
+      "userId": "68df8fcb372f378356ef7568",
+      "userEmail": "chauncey69@gmail.com",
+      "merchantOrderParams": "01K6MMKBKC8CX4SMJAR49DX5RZ",
+      "countryIsoCode": "NG",
+      "flow": "regular",
+      "type": "on_ramp",
+      "source": "api",
+      "status": "payout_successful",
+      "deposit": {
+        "paymentChannel": "bank",
+        "currencyType": "fiat",
+        "currencyCode": "NGN",
+        "cashout": {
+          "exchangeRate": 1460.2,
+          "exchangeRateAfterFees": 1505.2969,
+          "amountBeforeFees": 15054,
+          "amountAfterFees": 14603,
+          "amountBeforeFeesUsd": 10.309547,
+          "amountAfterFeesUsd": 10.000685
+        }
+      },
+      "payout": {
+        "paymentChannel": "merchant_balance",
+        "currencyType": "merchant_balance",
+        "currencyCode": "USD",
+        "cashout": {
+          "exchangeRate": 1,
+          "exchangeRateAfterFees": 1,
+          "amountBeforeFees": 10,
+          "amountAfterFees": 10,
+          "amountBeforeFeesUsd": 10,
+          "amountAfterFeesUsd": 10
+        }
+      },
+      "createdAt": "2025-10-03T08:56:43.212Z",
+      "updatedAt": "2025-10-03T08:57:03.247Z"
+    }
+  }
+}
+```
+
+</details>
+
+### Webhook verification
+
+We send a hash field in our webhook to protect merchants from fraudulent requests. Each request should be verified by a secret provided in the dashboard.
+The signature header is called "x-signature".
+Here is how it should be checked in pseudocode:
+
+```pseudocode
+request.body.hash === SHA256(stringify(request.body.data), secret)
+```
+
+Typescript example:
+
+```typescript
+import { createHash } from 'crypto';
+
+request.body.hash === createHash('sha256')
+   .update(JSON.stringify(request.body.data))
+   .update(createHash('sha256').update(__SECRET__, 'utf8').digest('hex'))
+   .digest('hex');
+```
+
+
 ## API endpoints
 
 ### Get currencies
@@ -1172,6 +1336,7 @@ type CreateOrderRequest = {
   fieldsToCreateOrder: Record<string, any>; // union of required fields from deposit and payout
   orderParams?: string; // merchant-defined reference
   callbackUrl?: string; // button URL on status page in the widget
+  webhookUrl?: string; // optional webhook URL for this specific order status updates, it will override the default one set for the merchant
 }
 ```
 
