@@ -4,19 +4,24 @@
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Order Flow Overview](#order-flow-overview)
-- [Example Flows](#example-flows)
+- [Fonbnk merchant API V2 Documentation (WIP)](#fonbnk-merchant-api-v2-documentation-wip)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Order flow overview](#order-flow-overview)
+  - [KYC requirements](#kyc-requirements)
+  - [Example Flows](#example-flows)
     - [Fiat-to-Merchant balance Example Flow](#fiat-to-merchant-balance-example-flow)
     - [Crypto-to-Merchant balance Example Flow](#crypto-to-merchant-balance-example-flow)
     - [Fiat-to-Crypto Example Flow](#fiat-to-crypto-example-flow)
     - [Crypto-to-Fiat Example Flow](#crypto-to-fiat-example-flow)
-- [Transfer Types Explanation](#transfer-types-explanation)
-- [Order Statuses Flow](#order-statuses)
-- [Authentication & Request Signing](#authentication--request-signing)
-- [Webhooks](#webhooks)
+  - [Transfer types explanation](#transfer-types-explanation)
+  - [Order statuses](#order-statuses)
+  - [Authentication \& Request Signing](#authentication--request-signing)
+  - [Webhooks](#webhooks)
     - [Webhook Verification](#webhook-verification)
-- [API Endpoints](#api-endpoints)
+    - [Webhook Response Requirements](#webhook-response-requirements)
+    - [Retry Policy](#retry-policy)
+  - [API endpoints](#api-endpoints)
     - [Get currencies](#get-currencies)
     - [Get order limits](#get-order-limits)
     - [Get quote](#get-quote)
@@ -29,7 +34,7 @@
     - [Get order](#get-order)
     - [Get orders](#get-orders)
     - [Get merchant balance](#get-merchant-balance)
-- [Types](#types-used-in-the-above-definitions)
+  - [Types used in the above definitions:](#types-used-in-the-above-definitions)
 
 ## Overview
 
@@ -68,6 +73,7 @@ With the new architecture, a merchant has access to:
 3. Call [Get user KYC state](#get-user-kyc-state) to determine if KYC is required for the intended amounts and currency
    types.
     - If KYC is required, call [Submit user KYC](#submit-user-kyc) and wait until status is approved.
+  - See [KYC requirements](#kyc-requirements) for a detailed checklist of the decision flow.
 4. Call [Get quote](#get-quote) with the deposit/payout configuration and one side’s amount (deposit.amount or
    payout.amount, not both).
     - Use deposit.fieldsToCreateOrder and payout.fieldsToCreateOrder to collect all required fields from the user.
@@ -79,7 +85,109 @@ With the new architecture, a merchant has access to:
 9. Track order status as deposit validates and payout processes.
 10. Use [Get order](#get-order) to poll for status and details at any time.
 
+## KYC requirements
+
+Most flows require validating a user’s Know Your Customer (KYC) level before creating an order. The high-level steps are:
+
+1. Call [Get user KYC state](#get-user-kyc-state) with the user’s email and country.
+2. Inspect the returned `kycRules` to see which KYC tier (`basic`, `advanced`, etc.) is required for the intended deposit or payout amounts and currency types.
+3. If the user hasn’t already passed the needed tier (`passedKycType`), prompt them for the document listed in `kycDocuments` and gather the associated `requiredFields`.
+4. Submit the collected data via [Submit user KYC](#submit-user-kyc). Continue polling `Get user KYC state` until `currentKycStatus` becomes `approved`.
+
+> Tip: The sample data below shows that payouts ≥ 100 USD in crypto require `advanced` KYC. Your environment will return thresholds appropriate for the country, currency, and operation type.
+
+<details>
+<summary>Sample `Get user KYC state` response</summary>
+
+```json
+{
+  "passedKycType": null,
+  "reachedKycLimit": false,
+  "currentKycStatus": null,
+  "currentKycStatusDescription": null,
+  "kycDocuments": [
+    {
+      "_id": "67da909b739fc481aa525c43",
+      "type": "basic",
+      "title": "Voter ID",
+      "value": "VOTER_ID",
+      "requiredFields": [
+        { "key": "first_name", "type": "string", "label": "First Name", "required": true },
+        { "key": "last_name", "type": "string", "label": "Last Name", "required": true },
+        { "key": "dob", "type": "date", "label": "Date of birth", "required": true },
+        {
+          "key": "id_number",
+          "type": "string",
+          "label": "ID number",
+          "required": true,
+          "format": "0000000000000000000",
+          "regexp": "^[a-zA-Z0-9 ]{9,29}$",
+          "regexpFlags": "i"
+        }
+      ]
+    },
+    {
+      "_id": "67da93c0dfd3a00f3380b857",
+      "type": "advanced",
+      "title": "Driving License",
+      "value": "DRIVERS_LICENSE",
+      "requiredFields": [
+        { "key": "first_name", "type": "string", "label": "First Name", "required": true },
+        { "key": "last_name", "type": "string", "label": "Last Name", "required": true },
+        { "key": "dob", "type": "date", "label": "Date of birth", "required": true },
+        { "key": "images", "type": "smile-identity-images", "label": "Verification images", "required": true }
+      ]
+    }
+  ],
+  "kycRules": [
+    {
+      "operationType": "deposit",
+      "currencyType": "crypto",
+      "min": 0,
+      "max": 100,
+      "type": "basic"
+    },
+    {
+      "operationType": "payout",
+      "currencyType": "crypto",
+      "min": 100,
+      "max": "Infinity",
+      "type": "advanced"
+    }
+  ]
+}
+```
+
+</details>
+
+<details>
+<summary>Sample `Submit user KYC` request</summary>
+
+```json
+{
+  "userEmail": "someuser@example.com",
+  "countryIsoCode": "NG",
+  "documentId": "67da93c0dfd3a00f3380b857",
+  "userFields": {
+    "first_name": "John",
+    "last_name": "Doe",
+    "dob": "1990-01-01",
+    "images": [
+      { "image_type_id": 0, "image": "https://cdn.com/selfie.jpg" },
+      { "image_type_id": 1, "image": "https://cdn.com/front.jpg" },
+      { "image_type_id": 5, "image": "https://cdn.com/back.jpg" }
+    ]
+  }
+}
+```
+
+</details>
+
+Once the user’s KYC status is approved at or above the required tier, proceed with quoting and order creation. The following example flows reference this section instead of duplicating the steps.
+
 ## Example Flows
+
+These walkthroughs build on the [Order flow overview](#order-flow-overview). Before collecting quotes, always confirm the customer meets the [KYC requirements](#kyc-requirements) for the intended amounts; each flow will call that out explicitly when thresholds matter.
 
 ### Fiat-to-Merchant balance Example Flow
 
@@ -232,152 +340,7 @@ Next, call [Get order limits](#get-order-limits) with:
 
 We see that the minimum deposit is 1523 NGN and the maximum is 761469 NGN, which corresponds to 1-500 USD.
 
-Assume the merchant wants to receive 100 USD. Check KYC via [Get user KYC state](#get-user-kyc-state):
-
-- userEmail: "someuser@example.com"
-- countryIsoCode: "NG"
-
-<details>
-<summary>Example response</summary>
-
-```json
-{
-  "passedKycType": null,
-  "reachedKycLimit": false,
-  "currentKycStatus": null,
-  "currentKycStatusDescription": null,
-  "kycDocuments": [
-    {
-      "_id": "67da909b739fc481aa525c43",
-      "type": "basic",
-      "title": "Voter ID",
-      "value": "VOTER_ID",
-      "requiredFields": [
-        {
-          "key": "first_name",
-          "type": "string",
-          "label": "First Name",
-          "required": true
-        },
-        {
-          "key": "last_name",
-          "type": "string",
-          "label": "Last Name",
-          "required": true
-        },
-        {
-          "key": "dob",
-          "type": "date",
-          "label": "Date of birth",
-          "required": true
-        },
-        {
-          "key": "id_number",
-          "type": "string",
-          "label": "ID number",
-          "required": true,
-          "format": "0000000000000000000",
-          "regexp": "^[a-zA-Z0-9 ]{9,29}$",
-          "regexpFlags": "i"
-        }
-      ]
-    },
-    {
-      "_id": "67da93c0dfd3a00f3380b857",
-      "type": "advanced",
-      "title": "Driving License",
-      "value": "DRIVERS_LICENSE",
-      "requiredFields": [
-        {
-          "key": "first_name",
-          "type": "string",
-          "label": "First Name",
-          "required": true
-        },
-        {
-          "key": "last_name",
-          "type": "string",
-          "label": "Last Name",
-          "required": true
-        },
-        {
-          "key": "dob",
-          "type": "date",
-          "label": "Date of birth",
-          "required": true
-        },
-        {
-          "key": "images",
-          "type": "smile-identity-images",
-          "label": "Verification images",
-          "required": true
-        }
-      ]
-    }
-  ],
-  "kycRules": [
-    {
-      "operationType": "deposit",
-      "currencyType": "crypto",
-      "min": 0,
-      "max": 100,
-      "type": "basic"
-    },
-    {
-      "operationType": "payout",
-      "currencyType": "crypto",
-      "min": 100,
-      "max": "Infinity",
-      "type": "basic"
-    }
-  ]
-}
-```
-
-</details>
-
-In this example, to payout ≥ 100 USD in crypto, advanced KYC is required. Collect:
-
-- first_name
-- last_name
-- dob (YYYY-MM-DD)
-- images (selfie, front, back URLs or base64). Use image_type_id: 0 for selfie, 1 for front, 5 for back.
-
-Submit via [Submit user KYC](#submit-user-kyc):
-
-<details>
-<summary>Example request</summary>
-
-```json
-{
-  "userEmail": "someuser@example.com",
-  "countryIsoCode": "NG",
-  "documentId": "67da93c0dfd3a00f3380b857",
-  "userFields": {
-    "first_name": "John",
-    "last_name": "Doe",
-    "dob": "1990-01-01",
-    "images": [
-      {
-        "image_type_id": 0,
-        "image": "https://cdn.com/selfie.jpg"
-      },
-      {
-        "image_type_id": 1,
-        "image": "https://cdn.com/front.jpg"
-      },
-      {
-        "image_type_id": 5,
-        "image": "https://cdn.com/back.jpg"
-      }
-    ]
-  }
-}
-```
-
-</details>
-
-Wait until currentKycStatus becomes "approved" (poll [Get user KYC state](#get-user-kyc-state)).
+Assume the merchant wants to receive 100 USD. Check the user’s tier using the [KYC requirements](#kyc-requirements) flow before proceeding. In the sample sandbox rules, payouts of 100 USD or more trigger the `advanced` tier, so be sure the user has submitted and been approved for that document set.
 
 Then [Get quote](#get-quote):
 
@@ -986,152 +949,7 @@ Next, call [Get order limits](#get-order-limits) with:
 
 We see that the minimum deposit is 1 CELO cUSD and the maximum is 500 CELO cUSD.
 
-Assume the merchant wants to receive 100 USD. Check KYC via [Get user KYC state](#get-user-kyc-state):
-
-- userEmail: "someuser@example.com"
-- countryIsoCode: "NG"
-
-<details>
-<summary>Example response</summary>
-
-```json
-{
-  "passedKycType": null,
-  "reachedKycLimit": false,
-  "currentKycStatus": null,
-  "currentKycStatusDescription": null,
-  "kycDocuments": [
-    {
-      "_id": "67da909b739fc481aa525c43",
-      "type": "basic",
-      "title": "Voter ID",
-      "value": "VOTER_ID",
-      "requiredFields": [
-        {
-          "key": "first_name",
-          "type": "string",
-          "label": "First Name",
-          "required": true
-        },
-        {
-          "key": "last_name",
-          "type": "string",
-          "label": "Last Name",
-          "required": true
-        },
-        {
-          "key": "dob",
-          "type": "date",
-          "label": "Date of birth",
-          "required": true
-        },
-        {
-          "key": "id_number",
-          "type": "string",
-          "label": "ID number",
-          "required": true,
-          "format": "0000000000000000000",
-          "regexp": "^[a-zA-Z0-9 ]{9,29}$",
-          "regexpFlags": "i"
-        }
-      ]
-    },
-    {
-      "_id": "67da93c0dfd3a00f3380b857",
-      "type": "advanced",
-      "title": "Driving License",
-      "value": "DRIVERS_LICENSE",
-      "requiredFields": [
-        {
-          "key": "first_name",
-          "type": "string",
-          "label": "First Name",
-          "required": true
-        },
-        {
-          "key": "last_name",
-          "type": "string",
-          "label": "Last Name",
-          "required": true
-        },
-        {
-          "key": "dob",
-          "type": "date",
-          "label": "Date of birth",
-          "required": true
-        },
-        {
-          "key": "images",
-          "type": "smile-identity-images",
-          "label": "Verification images",
-          "required": true
-        }
-      ]
-    }
-  ],
-  "kycRules": [
-    {
-      "operationType": "deposit",
-      "currencyType": "crypto",
-      "min": 0,
-      "max": 100,
-      "type": "basic"
-    },
-    {
-      "operationType": "payout",
-      "currencyType": "crypto",
-      "min": 100,
-      "max": "Infinity",
-      "type": "basic"
-    }
-  ]
-}
-```
-
-</details>
-
-In this example, to payout ≥ 100 USD, advanced KYC is required. Collect:
-
-- first_name
-- last_name
-- dob (YYYY-MM-DD)
-- images (selfie, front, back URLs or base64). Use image_type_id: 0 for selfie, 1 for front, 5 for back.
-
-Submit via [Submit user KYC](#submit-user-kyc):
-
-<details>
-<summary>Example request</summary>
-
-```json
-{
-  "userEmail": "someuser@example.com",
-  "countryIsoCode": "NG",
-  "documentId": "67da93c0dfd3a00f3380b857",
-  "userFields": {
-    "first_name": "John",
-    "last_name": "Doe",
-    "dob": "1990-01-01",
-    "images": [
-      {
-        "image_type_id": 0,
-        "image": "https://cdn.com/selfie.jpg"
-      },
-      {
-        "image_type_id": 1,
-        "image": "https://cdn.com/front.jpg"
-      },
-      {
-        "image_type_id": 5,
-        "image": "https://cdn.com/back.jpg"
-      }
-    ]
-  }
-}
-```
-
-</details>
-
-Wait until currentKycStatus becomes "approved" (poll [Get user KYC state](#get-user-kyc-state)).
+Assume the merchant wants to receive 100 USD. Reuse the [KYC requirements](#kyc-requirements) checklist to confirm the customer has passed the appropriate tier. With the example rules, this amount again requires the `advanced` document set before you continue.
 
 Then [Get quote](#get-quote):
 
@@ -1641,152 +1459,7 @@ Next, call [Get order limits](#get-order-limits) with:
 
 </details>
 
-Assume the user wants to receive 100 POLYGON_USDT. Check KYC via [Get user KYC state](#get-user-kyc-state):
-
-- userEmail: "someuser@example.com"
-- countryIsoCode: "NG"
-
-<details>
-<summary>Example response</summary>
-
-```json
-{
-  "passedKycType": null,
-  "reachedKycLimit": false,
-  "currentKycStatus": null,
-  "currentKycStatusDescription": null,
-  "kycDocuments": [
-    {
-      "_id": "67da909b739fc481aa525c43",
-      "type": "basic",
-      "title": "Voter ID",
-      "value": "VOTER_ID",
-      "requiredFields": [
-        {
-          "key": "first_name",
-          "type": "string",
-          "label": "First Name",
-          "required": true
-        },
-        {
-          "key": "last_name",
-          "type": "string",
-          "label": "Last Name",
-          "required": true
-        },
-        {
-          "key": "dob",
-          "type": "date",
-          "label": "Date of birth",
-          "required": true
-        },
-        {
-          "key": "id_number",
-          "type": "string",
-          "label": "ID number",
-          "required": true,
-          "format": "0000000000000000000",
-          "regexp": "^[a-zA-Z0-9 ]{9,29}$",
-          "regexpFlags": "i"
-        }
-      ]
-    },
-    {
-      "_id": "67da93c0dfd3a00f3380b857",
-      "type": "advanced",
-      "title": "Driving License",
-      "value": "DRIVERS_LICENSE",
-      "requiredFields": [
-        {
-          "key": "first_name",
-          "type": "string",
-          "label": "First Name",
-          "required": true
-        },
-        {
-          "key": "last_name",
-          "type": "string",
-          "label": "Last Name",
-          "required": true
-        },
-        {
-          "key": "dob",
-          "type": "date",
-          "label": "Date of birth",
-          "required": true
-        },
-        {
-          "key": "images",
-          "type": "smile-identity-images",
-          "label": "Verification images",
-          "required": true
-        }
-      ]
-    }
-  ],
-  "kycRules": [
-    {
-      "operationType": "deposit",
-      "currencyType": "crypto",
-      "min": 0,
-      "max": 100,
-      "type": "basic"
-    },
-    {
-      "operationType": "payout",
-      "currencyType": "crypto",
-      "min": 100,
-      "max": "Infinity",
-      "type": "basic"
-    }
-  ]
-}
-```
-
-</details>
-
-In this example, to payout ≥ 100 USD, advanced KYC is required. Collect:
-
-- first_name
-- last_name
-- dob (YYYY-MM-DD)
-- images (selfie, front, back URLs or base64). Use image_type_id: 0 for selfie, 1 for front, 5 for back.
-
-Submit via [Submit user KYC](#submit-user-kyc):
-
-<details>
-<summary>Example request</summary>
-
-```json
-{
-  "userEmail": "someuser@example.com",
-  "countryIsoCode": "NG",
-  "documentId": "67da93c0dfd3a00f3380b857",
-  "userFields": {
-    "first_name": "John",
-    "last_name": "Doe",
-    "dob": "1990-01-01",
-    "images": [
-      {
-        "image_type_id": 0,
-        "image": "https://cdn.com/selfie.jpg"
-      },
-      {
-        "image_type_id": 1,
-        "image": "https://cdn.com/front.jpg"
-      },
-      {
-        "image_type_id": 5,
-        "image": "https://cdn.com/back.jpg"
-      }
-    ]
-  }
-}
-```
-
-</details>
-
-Wait until currentKycStatus becomes "approved" (poll [Get user KYC state](#get-user-kyc-state)).
+Assume the user wants to receive 100 POLYGON_USDT. Validate their tier using the [KYC requirements](#kyc-requirements) flow. With the sample thresholds, that amount once more requires `advanced` KYC approval before quoting.
 
 Then [Get quote](#get-quote):
 
@@ -2845,7 +2518,7 @@ const response = {
 _**GET** /api/v2/user/kyc_
 
 Returns the KYC state of a user. If the user doesn’t exist, it is created and the KYC state is returned. Also returns
-KYC rules and available documents for the user’s country.
+KYC rules and available documents for the user’s country. See [KYC requirements](#kyc-requirements) for guidance on interpreting these responses inside a flow.
 
 Query params:
 
@@ -2931,6 +2604,7 @@ const response = {
 _**POST** /api/v2/user/kyc_
 
 Submits KYC documents for a user. Returns the same structure as [Get user KYC state](#get-user-kyc-state).
+For a complete walkthrough of deciding when to submit and how to poll for approval, visit [KYC requirements](#kyc-requirements).
 
 Request body:
 
