@@ -557,6 +557,8 @@ For a merchant receive 100 USD, user must deposit 152294 NGN. Collect these fiel
 - depositSandboxForcedFlow (sandbox optional field to simulate deposit success/failure/underpayment/overpayment)
 - payoutSandboxForcedFlow (sandbox optional field to simulate payout success/failure)
 
+> **Sandbox tip:** When you're testing in the sandbox environment you can set `depositSandboxForcedFlow` or `payoutSandboxForcedFlow` to force the platform to return success, failure, or other edge outcomes. This makes it easy to imitate failed flows without moving real funds.
+
 Create the order via [Create order](#create-order):
 
 <details>
