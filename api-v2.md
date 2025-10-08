@@ -10,6 +10,7 @@
 - [Example Flows](#example-flows)
     - [Fiat-to-Merchant balance Example Flow](#fiat-to-merchant-balance-example-flow)
     - [Crypto-to-Merchant balance Example Flow](#crypto-to-merchant-balance-example-flow)
+    - [Merchant balance-to-Crypto Example Flow](#merchant-balance-to-crypto-example-flow)
     - [Fiat-to-Crypto Example Flow](#fiat-to-crypto-example-flow)
     - [Crypto-to-Fiat Example Flow](#crypto-to-fiat-example-flow)
 - [Transfer Types Explanation](#transfer-types-explanation)
@@ -911,7 +912,7 @@ you receive:
 </details>
 
 We see CELO cUSD supports deposit and payout. Merchant balance supports both
-deposit and payout. So we can do Fiat→Merchant balance USD.
+deposit and payout. So we can do Crypto→Merchant balance USD.
 
 Next, call [Get order limits](#get-order-limits) with:
 
@@ -1293,6 +1294,481 @@ Then call [Confirm order](#confirm-order) with the transaction hash:
   "fieldsToConfirmOrder": {
     "blockchainTransactionHash": "0xabc123def456ghi789jkl012mno345pqr678stu901vwx234yz567abc890def1"
   }
+}
+```
+
+</details>
+
+The system validates the deposit and processes payout. Use [Get order](#get-order) to track status until "
+payout_successful".
+
+### Merchant balance-to-Crypto Example Flow
+
+Let’s do a merchant balance USD  deposit to CELO cUSD payout. First, call [Get currencies](#get-currencies) and assume
+you receive:
+
+<details>
+<summary>Example response</summary>
+
+```json
+[
+  {
+    "currencyType": "crypto",
+    "currencyCode": "CELO_CUSD",
+    "paymentChannels": [
+      {
+        "type": "crypto",
+        "transferTypes": [
+          "manual"
+        ],
+        "isDepositAllowed": true,
+        "isPayoutAllowed": true
+      }
+    ],
+    "currencyDetails": {
+      "network": "CELO",
+      "asset": "CUSD",
+      "networkIcon": "https://storage.googleapis.com/fonbnk-public/networks%2FCELO-18f981e8af97c118b571bb98d19f8fe7ab4cf558d01b373da4cd4bb45b9a35c2.svg",
+      "assetIcon": "https://storage.googleapis.com/fonbnk-public/assets%2FCUSD-2b4b3fe89fb01ac46c814b08da63a5c238984f28817632dc5a0012c634914913.svg",
+      "contractAddress": "0xd5cf8ab08295e32db2e2dce8478e5ce021340a57",
+      "networkTitle": "Celo",
+      "assetTitle": "cUSD",
+      "decimals": 18,
+      "priceUsd": 1,
+      "transferNetworkFee": 0.0021125845,
+      "transferNetworkFeeUsd": 0
+    },
+    "pairs": [
+      "fiat",
+      "merchant_balance"
+    ]
+  },
+  {
+    "currencyType": "merchant_balance",
+    "currencyCode": "USD",
+    "paymentChannels": [
+      {
+        "type": "merchant_balance",
+        "transferTypes": [
+          "manual"
+        ],
+        "isDepositAllowed": true,
+        "isPayoutAllowed": true
+      }
+    ],
+    "currencyDetails": {
+      "merchantName": "Fonbnk"
+    },
+    "pairs": [
+      "fiat",
+      "crypto"
+    ]
+  }
+]
+```
+
+</details>
+
+We see CELO cUSD supports deposit and payout. Merchant balance supports both
+deposit and payout. So we can do Fiat→Merchant balance USD.
+
+Next, call [Get order limits](#get-order-limits) with:
+
+- depositPaymentChannel: "merchant_balance"
+- depositCurrencyType: "merchant_balance"
+- depositCurrencyCode: "USD"
+- payoutPaymentChannel: "crypto"
+- payoutCurrencyType: "crypto"
+- payoutCurrencyCode: "CELO_CUSD"
+
+<details>
+<summary>Example response</summary>
+
+```json
+{
+  "deposit": {
+    "min": 1,
+    "max": 500,
+    "minUsd": 1,
+    "maxUsd": 500
+  },
+  "payout": {
+    "min": 1,
+    "max": 500,
+    "minUsd": 1,
+    "maxUsd": 500
+  }
+}
+
+```
+
+</details>
+
+We see that the minimum deposit is 1 USD and the maximum is 500 USD.
+
+Assume the merchant wants to send 100 CELO cUSD. Reuse the [KYC requirements](#kyc-requirements) checklist to confirm the customer has passed the appropriate tier. With the example rules, this amount again requires the `advanced` document set before you continue.
+
+Then [Get quote](#get-quote):
+
+<details>
+<summary>Example request</summary>
+
+```json
+{
+  "deposit": {
+    "paymentChannel": "merchant_balance",
+    "currencyType": "merchant_balance",
+    "currencyCode": "USD"
+  },
+  "payout": {
+    "paymentChannel": "crypto",
+    "currencyType": "crypto",
+    "currencyCode": "CELO_CUSD",
+    "amount": 100
+  }
+}
+```
+
+</details>
+
+<details>
+<summary>Example response</summary>
+
+```json
+{
+  "quoteId": "68e618627c692a7c2fb5e277",
+  "quoteExpiresAt": "2025-10-08T08:03:06.304Z",
+  "deposit": {
+    "paymentChannel": "merchant_balance",
+    "currencyType": "merchant_balance",
+    "currencyCode": "USD",
+    "currencyDetails": {
+      "merchantName": "Bohdan another"
+    },
+    "cashout": {
+      "amountBeforeFees": 100,
+      "amountAfterFees": 100,
+      "amountBeforeFeesUsd": 100,
+      "amountAfterFeesUsd": 100,
+      "chargedFees": [],
+      "chargedFeesUsd": [],
+      "totalChargedFees": 0,
+      "totalChargedFeesUsd": 0,
+      "exchangeRate": 1,
+      "exchangeRateAfterFees": 1,
+      "chargedFeesPerRecipient": {},
+      "chargedFeesPerRecipientUsd": {},
+      "feeSettings": []
+    },
+    "fieldsToCreateOrder": [
+      {
+        "key": "depositSandboxForcedFlow",
+        "type": "enum",
+        "label": "Sandbox deposit forced flow",
+        "required": false,
+        "defaultValue": "deposit_success",
+        "options": [
+          {
+            "label": "Deposit success",
+            "value": "deposit_success"
+          },
+          {
+            "label": "Deposit invalid",
+            "value": "deposit_invalid"
+          },
+          {
+            "label": "Deposit underpayment (50%)",
+            "value": "deposit_underpayment"
+          },
+          {
+            "label": "Deposit overpayment (200%)",
+            "value": "deposit_overpayment"
+          }
+        ]
+      }
+    ],
+    "transferType": "manual"
+  },
+  "payout": {
+    "paymentChannel": "crypto",
+    "currencyType": "crypto",
+    "currencyCode": "CELO_CUSD",
+    "currencyDetails": {
+      "network": "CELO",
+      "asset": "CUSD",
+      "networkIcon": "https://storage.googleapis.com/fonbnk-public/networks%2FCELO-18f981e8af97c118b571bb98d19f8fe7ab4cf558d01b373da4cd4bb45b9a35c2.svg",
+      "assetIcon": "https://storage.googleapis.com/fonbnk-public/assets%2FCUSD-2b4b3fe89fb01ac46c814b08da63a5c238984f28817632dc5a0012c634914913.svg",
+      "contractAddress": "0xd5cf8ab08295e32db2e2dce8478e5ce021340a57",
+      "networkTitle": "Celo",
+      "assetTitle": "cUSD",
+      "decimals": 18,
+      "priceUsd": 1,
+      "transferNetworkFee": 0.0021125845,
+      "transferNetworkFeeUsd": 0
+    },
+    "cashout": {
+      "amountBeforeFees": 100,
+      "amountAfterFees": 100,
+      "amountBeforeFeesUsd": 100,
+      "amountAfterFeesUsd": 100,
+      "chargedFees": [],
+      "chargedFeesUsd": [],
+      "totalChargedFees": 0,
+      "totalChargedFeesUsd": 0,
+      "exchangeRate": 1,
+      "exchangeRateAfterFees": 1,
+      "chargedFeesPerRecipient": {},
+      "chargedFeesPerRecipientUsd": {},
+      "feeSettings": [
+        {
+          "id": "gas",
+          "recipient": "blockchain",
+          "type": "flat_amount",
+          "value": 0,
+          "min": 0,
+          "max": "Infinity"
+        }
+      ]
+    },
+    "fieldsToCreateOrder": [
+      {
+        "key": "blockchainWalletAddress",
+        "type": "string",
+        "label": "Your wallet address",
+        "required": true
+      },
+      {
+        "key": "blockchainMemo",
+        "type": "string",
+        "label": "Memo",
+        "required": false
+      },
+      {
+        "key": "payoutSandboxForcedFlow",
+        "type": "enum",
+        "label": "Sandbox payout forced flow",
+        "required": false,
+        "defaultValue": "payout_success",
+        "options": [
+          {
+            "label": "Payout success",
+            "value": "payout_success"
+          },
+          {
+            "label": "Payout failed",
+            "value": "payout_failed"
+          }
+        ]
+      }
+    ]
+  }
+}
+
+```
+
+</details>
+
+For a user receive 100 CELO cUSD, merchant must deposit 100 USD. Collect these fields:
+
+- blockchainWalletAddress (user's wallet to receive crypto to)
+- blockchainMemo (optional, if the crypto requires memo/tag)
+- depositSandboxForcedFlow (sandbox optional field to simulate deposit success/failure/underpayment/overpayment)
+- payoutSandboxForcedFlow (sandbox optional field to simulate payout success/failure)
+
+Create the order via [Create order](#create-order):
+
+<details>
+<summary>Example request</summary>
+
+```json
+{
+  "quoteId": "68e618627c692a7c2fb5e277",
+  "userEmail": "someuser@example.com",
+  "userIp": "174.3.2.22",
+  "deposit": {
+    "paymentChannel": "merchant_balance",
+    "currencyType": "merchant_balance",
+    "currencyCode": "USD"
+  },
+  "payout": {
+    "paymentChannel": "crypto",
+    "currencyType": "crypto",
+    "currencyCode": "CELO_CUSD",
+    "amount": 100
+  },
+  "fieldsToCreateOrder": {
+    "blockchainWalletAddress": "0x998f545aB9A97C4d19bf3a8E7bd693Cf0240cC06"
+  }
+}
+```
+
+</details>
+
+<details>
+<summary>Example response (transfer instructions excerpt)</summary>
+
+```json
+{
+  "quoteUsed": true,
+  "order": {
+    "_id": "68e619882d54c783ec124a89",
+    "countryIsoCode": "NG",
+    "userId": "68e39f1af2846eee548917b2",
+    "userEmail": "someuser@example.com",
+    "status": "deposit_awaiting",
+    "deposit": {
+      "paymentChannel": "merchant_balance",
+      "currencyType": "merchant_balance",
+      "currencyCode": "USD",
+      "currencyDetails": {
+        "merchantName": "Bohdan another"
+      },
+      "cashout": {
+        "amountBeforeFees": 100,
+        "amountAfterFees": 100,
+        "amountBeforeFeesUsd": 100,
+        "amountAfterFeesUsd": 100,
+        "chargedFees": [],
+        "chargedFeesUsd": [],
+        "totalChargedFees": 0,
+        "totalChargedFeesUsd": 0,
+        "exchangeRate": 1,
+        "exchangeRateAfterFees": 1,
+        "chargedFeesPerRecipient": {},
+        "chargedFeesPerRecipientUsd": {},
+        "feeSettings": []
+      },
+      "fieldsToCreateOrder": [
+        {
+          "key": "depositSandboxForcedFlow",
+          "type": "enum",
+          "label": "Sandbox deposit forced flow",
+          "required": false,
+          "defaultValue": "deposit_success",
+          "options": [
+            {
+              "label": "Deposit success",
+              "value": "deposit_success"
+            },
+            {
+              "label": "Deposit invalid",
+              "value": "deposit_invalid"
+            },
+            {
+              "label": "Deposit underpayment (50%)",
+              "value": "deposit_underpayment"
+            },
+            {
+              "label": "Deposit overpayment (200%)",
+              "value": "deposit_overpayment"
+            }
+          ]
+        }
+      ],
+      "providedFieldsToCreateOrder": {},
+      "transferInstructions": {
+        "type": "manual",
+        "transferDetails": [],
+        "instructionsText": "",
+        "fieldsToConfirmOrder": []
+      }
+    },
+    "payout": {
+      "paymentChannel": "crypto",
+      "currencyType": "crypto",
+      "currencyCode": "CELO_CUSD",
+      "currencyDetails": {
+        "network": "CELO",
+        "asset": "CUSD",
+        "networkIcon": "https://storage.googleapis.com/fonbnk-public/networks%2FCELO-18f981e8af97c118b571bb98d19f8fe7ab4cf558d01b373da4cd4bb45b9a35c2.svg",
+        "assetIcon": "https://storage.googleapis.com/fonbnk-public/assets%2FCUSD-2b4b3fe89fb01ac46c814b08da63a5c238984f28817632dc5a0012c634914913.svg",
+        "contractAddress": "0xd5cf8ab08295e32db2e2dce8478e5ce021340a57",
+        "networkTitle": "Celo",
+        "assetTitle": "cUSD",
+        "decimals": 18,
+        "priceUsd": 1,
+        "transferNetworkFee": 0.0021125845,
+        "transferNetworkFeeUsd": 0,
+        "systemWalletAddress": "0x0f002dcfde0f7ba4088341186f48fb8592e50695",
+        "systemWalletId": "6893465b6fe2c7be26afc241"
+      },
+      "cashout": {
+        "amountBeforeFees": 100,
+        "amountAfterFees": 100,
+        "amountBeforeFeesUsd": 100,
+        "amountAfterFeesUsd": 100,
+        "chargedFees": [],
+        "chargedFeesUsd": [],
+        "totalChargedFees": 0,
+        "totalChargedFeesUsd": 0,
+        "exchangeRate": 1,
+        "exchangeRateAfterFees": 1,
+        "chargedFeesPerRecipient": {},
+        "chargedFeesPerRecipientUsd": {},
+        "feeSettings": [
+          {
+            "id": "gas",
+            "recipient": "blockchain",
+            "type": "flat_amount",
+            "value": 0,
+            "min": 0,
+            "max": "Infinity"
+          }
+        ]
+      },
+      "fieldsToCreateOrder": [
+        {
+          "key": "blockchainWalletAddress",
+          "type": "string",
+          "label": "Your wallet address",
+          "required": true
+        },
+        {
+          "key": "blockchainMemo",
+          "type": "string",
+          "label": "Memo",
+          "required": false
+        },
+        {
+          "key": "payoutSandboxForcedFlow",
+          "type": "enum",
+          "label": "Sandbox payout forced flow",
+          "required": false,
+          "defaultValue": "payout_success",
+          "options": [
+            {
+              "label": "Payout success",
+              "value": "payout_success"
+            },
+            {
+              "label": "Payout failed",
+              "value": "payout_failed"
+            }
+          ]
+        }
+      ],
+      "providedFieldsToCreateOrder": {
+        "blockchainWalletAddress": "0x998f545aB9A97C4d19bf3a8E7bd693Cf0240cC06"
+      }
+    },
+    "statusChangeLogs": [],
+    "createdAt": "2025-10-08T07:58:00.562Z",
+    "updatedAt": "2025-10-08T07:58:00.562Z",
+    "expiresAt": "2025-10-08T10:57:57.367Z"
+  }
+}
+```
+
+</details>
+
+Then call [Confirm order](#confirm-order). Its a merchant balance deposit, so no fields are required, your balance will be debited automatically.
+
+<details>
+<summary>Example request</summary>
+
+```json
+{
+  "orderId": "68e619882d54c783ec124a89"
 }
 ```
 
