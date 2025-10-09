@@ -1804,16 +1804,17 @@ flowchart TD
     classDef payout fill:#C5F7C1,stroke:#4CAF50,stroke-width:2px,color:#000,rx:8px,ry:8px
     classDef refund fill:#FFE5B4,stroke:#FF9800,stroke-width:2px,color:#000,rx:8px,ry:8px
     classDef fail fill:#F8C8DC,stroke:#E57373,stroke-width:2px,color:#000,rx:8px,ry:8px
+    classDef terminal fill:#E0E0E0,stroke:#9E9E9E,stroke-width:2px,color:#000,rx:8px,ry:8px
 
     %% Deposit states
     A[deposit_awaiting]:::expectedFlow --> B[deposit_validating]:::expectedFlow
-    A --> E2[deposit_canceled]:::fail
-    A --> D2[deposit_invalid]:::fail
-    A --> F2[deposit_expired]:::fail
+    A --> E2[deposit_canceled]:::terminal
+    A --> D2[deposit_invalid]:::terminal
+    A --> F2[deposit_expired]:::terminal
     B --> C[deposit_successful]:::expectedFlow
-    B --> D[deposit_invalid]:::fail
-    B --> E[deposit_canceled]:::fail
-    B --> F[deposit_expired]:::fail
+    B --> D[deposit_invalid]:::terminal
+    B --> E[deposit_canceled]:::terminal
+    B --> F[deposit_expired]:::terminal
 
     %% Payout states
     C --> G[payout_pending]:::expectedFlow
@@ -1824,7 +1825,6 @@ flowchart TD
     J --> K[refund_pending]:::refund
     K --> L[refund_successful]:::refund
     K --> M[refund_failed]:::fail
-
 ```
 
 Statuses explanation:
