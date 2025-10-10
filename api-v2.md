@@ -4,20 +4,23 @@
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Order Flow Overview](#order-flow-overview)
-- [KYC requirements](#kyc-requirements)
-- [Example Flows](#example-flows)
+- [Fonbnk merchant API V2 Documentation (WIP)](#fonbnk-merchant-api-v2-documentation-wip)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Order flow overview](#order-flow-overview)
+  - [KYC requirements](#kyc-requirements)
+  - [Example Flows](#example-flows)
     - [Fiat-to-Merchant balance Example Flow](#fiat-to-merchant-balance-example-flow)
-    - [Crypto-to-Merchant balance Example Flow](#crypto-to-merchant-balance-example-flow)
     - [Fiat-to-Crypto Example Flow](#fiat-to-crypto-example-flow)
     - [Crypto-to-Fiat Example Flow](#crypto-to-fiat-example-flow)
-- [Transfer Types Explanation](#transfer-types-explanation)
-- [Order Statuses Flow](#order-statuses)
-- [Authentication & Request Signing](#authentication--request-signing)
-- [Webhooks](#webhooks)
+  - [Transfer types explanation](#transfer-types-explanation)
+  - [Order statuses](#order-statuses)
+  - [Authentication \& Request Signing](#authentication--request-signing)
+  - [Webhooks](#webhooks)
     - [Webhook Verification](#webhook-verification)
-- [API Endpoints](#api-endpoints)
+    - [Webhook Response Requirements](#webhook-response-requirements)
+    - [Retry Policy](#retry-policy)
+  - [API endpoints](#api-endpoints)
     - [Get currencies](#get-currencies)
     - [Get order limits](#get-order-limits)
     - [Get quote](#get-quote)
@@ -842,8 +845,6 @@ fields are required:
 
 The system validates the deposit and processes payout. Use [Get order](#get-order) to track status until "
 payout_successful".
-
-### Crypto-to-Merchant balance Example Flow
 
 Let’s do a CELO cUSD deposit to merchant balance USD payout. First, call [Get currencies](#get-currencies) and assume
 you receive:
