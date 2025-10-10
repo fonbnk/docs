@@ -11,9 +11,9 @@
   - [KYC requirements](#kyc-requirements)
   - [Example Flows](#example-flows)
     - [Fiat-to-Merchant balance Example Flow](#fiat-to-merchant-balance-example-flow)
+    - [Merchant balance-to-Fiat Example Flow](#merchant-balance-to-fiat-example-flow)
     - [Fiat-to-Crypto Example Flow](#fiat-to-crypto-example-flow)
     - [Crypto-to-Fiat Example Flow](#crypto-to-fiat-example-flow)
-    - [Merchant balance-to-Fiat Example Flow](#merchant-balance-to-fiat-example-flow)
   - [Transfer types explanation](#transfer-types-explanation)
   - [Order statuses](#order-statuses)
   - [Authentication \& Request Signing](#authentication--request-signing)
@@ -1303,6 +1303,7 @@ Then call [Confirm order](#confirm-order) with the transaction hash:
 The system validates the deposit and processes payout. Use [Get order](#get-order) to track status until "
 payout_successful".
 
+### Merchant balance-to-Fiat Example Flow
 ### Fiat-to-Crypto Example Flow
 
 Let’s do a NGN (fiat) deposit to POLYGON_USDT (crypto) payout. First, call [Get currencies](#get-currencies) and assume
@@ -1770,7 +1771,7 @@ payout_successful".
 The flow is similar for fiat-to-crypto. The only difference is that when you confirm the order, you need to provide the
 transaction hash of the crypto deposit transaction in fieldsToConfirmOrder.
 
-### Merchant balance-to-Fiat Example Flow
+
 
 Let’s do a merchant balance USD deposit to NGN bank payout. First, call [Get currencies](#get-currencies) and assume
 you receive:
