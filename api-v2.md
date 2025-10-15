@@ -308,6 +308,7 @@ Next, call [Get order limits](#get-order-limits) with:
 - depositPaymentChannel: "bank"
 - depositCurrencyType: "fiat"
 - depositCurrencyCode: "NGN"
+- depositCountryIsoCode: "NG"
 - payoutPaymentChannel: "merchant_balance"
 - payoutCurrencyType: "merchant_balance"
 - payoutCurrencyCode: "USD"
@@ -348,7 +349,8 @@ Then [Get quote](#get-quote):
   "deposit": {
     "paymentChannel": "bank",
     "currencyType": "fiat",
-    "currencyCode": "NGN"
+    "currencyCode": "NGN",
+    "countryIsoCode": "NG"
   },
   "payout": {
     "paymentChannel": "merchant_balance",
@@ -572,7 +574,8 @@ Create the order via [Create order](#create-order):
   "deposit": {
     "paymentChannel": "bank",
     "currencyType": "fiat",
-    "currencyCode": "NGN"
+    "currencyCode": "NGN",
+    "countryIsoCode": "NG"
   },
   "payout": {
     "paymentChannel": "merchant_balance",
@@ -1431,6 +1434,7 @@ Next, call [Get order limits](#get-order-limits) with:
 - depositPaymentChannel: "bank"
 - depositCurrencyType: "fiat"
 - depositCurrencyCode: "NGN"
+- depositCountryIsoCode: "NG"
 - payoutPaymentChannel: "crypto"
 - payoutCurrencyType: "crypto"
 - payoutCurrencyCode: "POLYGON_USDT"
@@ -1469,7 +1473,8 @@ Then [Get quote](#get-quote):
   "deposit": {
     "paymentChannel": "bank",
     "currencyType": "fiat",
-    "currencyCode": "NGN"
+    "currencyCode": "NGN",
+    "countryIsoCode": "NG"
   },
   "payout": {
     "paymentChannel": "crypto",
@@ -1686,7 +1691,8 @@ Create the order via [Create order](#create-order):
   "deposit": {
     "paymentChannel": "bank",
     "currencyType": "fiat",
-    "currencyCode": "NGN"
+    "currencyCode": "NGN",
+    "countryIsoCode": "NG"
   },
   "payout": {
     "paymentChannel": "crypto",
@@ -1902,6 +1908,7 @@ const main = async () => {
     depositPaymentChannel: 'bank',
     depositCurrencyType: 'fiat',
     depositCurrencyCode: 'NGN',
+    depositCountryIsoCode: 'NG',
     payoutPaymentChannel: 'crypto',
     payoutCurrencyType: 'crypto',
     payoutCurrencyCode: 'POLYGON_USDT',
@@ -2221,10 +2228,12 @@ Query params:
 - depositCurrencyType: string (required)
 - depositCurrencyCode: string (required)
 - depositCarrierCode: string (optional)
+- depositCountryIsoCode: string (optional) - required if depositCurrencyType is fiat
 - payoutPaymentChannel: string (required)
 - payoutCurrencyType: string (required)
 - payoutCurrencyCode: string (required)
 - payoutCarrierCode: string (optional)
+- payoutCountryIsoCode: string (optional) - required if payoutCurrencyType is fiat
 
 Response type:
 
@@ -2243,6 +2252,7 @@ const queryParams = {
   depositPaymentChannel: "bank",
   depositCurrencyType: "fiat",
   depositCurrencyCode: "NGN",
+  depositCountryIsoCode: "NG",
   payoutPaymentChannel: "crypto",
   payoutCurrencyType: "crypto",
   payoutCurrencyCode: "POLYGON_USDT",
@@ -2269,11 +2279,13 @@ Request body:
 - deposit.currencyCode: string (required)
 - deposit.amount: number (optional)
 - deposit.carrierCode: string (optional)
+- deposit.countryIsoCode: string (optional) - required if deposit.currencyType is fiat
 - payout.paymentChannel: string (required)
 - payout.currencyType: string (required)
 - payout.currencyCode: string (required)
 - payout.amount: number (optional)
 - payout.carrierCode: string (optional)
+- payout.countryIsoCode: string (optional) - required if payout.currencyType is fiat
 
 Response type:
 
@@ -2306,7 +2318,7 @@ type QuoteResponse = {
 
 ```typescript
 const requestBody = {
-  deposit: {paymentChannel: "bank", currencyType: "fiat", currencyCode: "NGN", amount: 10000},
+  deposit: {paymentChannel: "bank", currencyType: "fiat", currencyCode: "NGN", countryIsoCode: "NG", amount: 10000},
   payout: {paymentChannel: "crypto", currencyType: "crypto", currencyCode: "POLYGON_USDT"},
 }
 
@@ -2428,6 +2440,7 @@ type CreateOrderRequest = {
     currencyType: CurrencyType;
     currencyCode: string;
     carrierCode?: string;
+    countryIsoCode?: string; // required if currencyType is fiat
     amount?: number;
   },
   payout: {
@@ -2435,6 +2448,7 @@ type CreateOrderRequest = {
     currencyType: CurrencyType;
     currencyCode: string;
     carrierCode?: string;
+    countryIsoCode?: string; // required if currencyType is fiat
     amount?: number;
   };
   fieldsToCreateOrder: Record<string, any>; // union of required fields from deposit and payout
@@ -2491,7 +2505,7 @@ const requestBody = {
   userEmail: "user@example.com",
   userCountryIsoCode: "NG",
   userIp: "143.0.2.4",
-  deposit: {paymentChannel: "bank", currencyType: "fiat", currencyCode: "NGN", amount: 10000},
+  deposit: {paymentChannel: "bank", currencyType: "fiat", currencyCode: "NGN", countryIsoCode: "NG", amount: 10000},
   payout: {paymentChannel: "crypto", currencyType: "crypto", currencyCode: "POLYGON_USDT"},
   fieldsToCreateOrder: {
     blockchainWalletAddress: "0x5b7ae3c6c83F4A3F94b35c77233b13191eBGAD21",
