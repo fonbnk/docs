@@ -4,20 +4,24 @@
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Order Flow Overview](#order-flow-overview)
-- [KYC requirements](#kyc-requirements)
-- [Example Flows](#example-flows)
+- [Fonbnk merchant API V2 Documentation (WIP)](#fonbnk-merchant-api-v2-documentation-wip)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Order flow overview](#order-flow-overview)
+  - [KYC requirements](#kyc-requirements)
+  - [Example Flows](#example-flows)
     - [Fiat-to-Merchant balance Example Flow](#fiat-to-merchant-balance-example-flow)
-    - [Crypto-to-Merchant balance Example Flow](#crypto-to-merchant-balance-example-flow)
     - [Fiat-to-Crypto Example Flow](#fiat-to-crypto-example-flow)
     - [Crypto-to-Fiat Example Flow](#crypto-to-fiat-example-flow)
-- [Transfer Types Explanation](#transfer-types-explanation)
-- [Order Statuses Flow](#order-statuses)
-- [Authentication & Request Signing](#authentication--request-signing)
-- [Webhooks](#webhooks)
+    - [Merchant balance-to-Fiat Example Flow](#merchant-balance-to-fiat-example-flow)
+  - [Transfer types explanation](#transfer-types-explanation)
+  - [Order statuses](#order-statuses)
+  - [Authentication \& Request Signing](#authentication--request-signing)
+  - [Webhooks](#webhooks)
     - [Webhook Verification](#webhook-verification)
-- [API Endpoints](#api-endpoints)
+    - [Webhook Response Requirements](#webhook-response-requirements)
+    - [Retry Policy](#retry-policy)
+  - [API endpoints](#api-endpoints)
     - [Get currencies](#get-currencies)
     - [Get order limits](#get-order-limits)
     - [Get quote](#get-quote)
@@ -811,7 +815,7 @@ const response = {
             {
               "label": "Payout failed",
               "value": "payout_failed"
-            },
+            }
           ]
         }
       ],
@@ -845,8 +849,6 @@ fields are required:
 
 The system validates the deposit and processes payout. Use [Get order](#get-order) to track status until "
 payout_successful".
-
-### Crypto-to-Merchant balance Example Flow
 
 Let’s do a CELO cUSD deposit to merchant balance USD payout. First, call [Get currencies](#get-currencies) and assume
 you receive:
@@ -914,7 +916,7 @@ you receive:
 </details>
 
 We see CELO cUSD supports deposit and payout. Merchant balance supports both
-deposit and payout. So we can do Fiat→Merchant balance USD.
+deposit and payout. So we can do Crypto→Merchant balance USD.
 
 Next, call [Get order limits](#get-order-limits) with:
 
@@ -1774,6 +1776,597 @@ payout_successful".
 The flow is similar for fiat-to-crypto. The only difference is that when you confirm the order, you need to provide the
 transaction hash of the crypto deposit transaction in fieldsToConfirmOrder.
 
+### Merchant balance-to-Fiat Example Flow
+
+Let’s do a merchant balance USD deposit to NGN bank payout. First, call [Get currencies](#get-currencies) and assume
+you receive:
+
+<details>
+<summary>Example response</summary>
+
+```json
+[
+  {
+    "currencyType": "fiat",
+    "currencyCode": "NGN",
+    "paymentChannels": [
+      {
+        "type": "bank",
+        "transferTypes": [
+          "manual",
+          "redirect"
+        ],
+        "isDepositAllowed": true,
+        "isPayoutAllowed": true
+      },
+      {
+        "type": "airtime",
+        "transferTypes": [
+          "ussd"
+        ],
+        "carriers": [
+          {
+            "code": "MTN",
+            "name": "MTN"
+          },
+          {
+            "code": "AIRTEL",
+            "name": "Airtel"
+          },
+          {
+            "code": "GLO",
+            "name": "Glo"
+          },
+          {
+            "code": "9MOBILE",
+            "name": "9Mobile"
+          }
+        ],
+        "isDepositAllowed": true,
+        "isPayoutAllowed": false
+      },
+      {
+        "type": "mobile_money",
+        "transferTypes": [
+          "stk_push",
+          "otp_stk_push"
+        ],
+        "carriers": [
+          {
+            "code": "MTN",
+            "name": "MTN Mobile Money"
+          },
+          {
+            "code": "AIRTEL",
+            "name": "Airtel Money"
+          },
+          {
+            "code": "GLO",
+            "name": "Glo Mobile Money"
+          },
+          {
+            "code": "9MOBILE",
+            "name": "9Mobile Money"
+          }
+        ],
+        "isDepositAllowed": true,
+        "isPayoutAllowed": true
+      }
+    ],
+    "currencyDetails": {
+      "countryIsoCode": "NG",
+      "countryName": "Nigeria",
+      "countryCode": "234",
+      "currencySymbol": "₦",
+      "countryIcon": "https://cdn.example.com/flags/ng.png"
+    },
+    "pairs": [
+      "crypto",
+      "merchant_balance"
+    ]
+  },
+  {
+    "currencyType": "merchant_balance",
+    "currencyCode": "USD",
+    "paymentChannels": [
+      {
+        "type": "merchant_balance",
+        "transferTypes": [
+          "manual"
+        ],
+        "isDepositAllowed": true,
+        "isPayoutAllowed": true
+      }
+    ],
+    "currencyDetails": {
+      "merchantName": "Fonbnk"
+    },
+    "pairs": [
+      "fiat",
+      "crypto"
+    ]
+  }
+]
+```
+
+</details>
+
+We see CELO cUSD supports deposit and payout. Merchant balance supports both
+deposit and payout. So we can do Fiat→Merchant balance USD.
+
+Next, call [Get order limits](#get-order-limits) with:
+
+- depositPaymentChannel: "merchant_balance"
+- depositCurrencyType: "merchant_balance"
+- depositCurrencyCode: "USD"
+- payoutPaymentChannel: "bank"
+- payoutCurrencyType: "fiat"
+- payoutCurrencyCode: "NGN"
+
+<details>
+<summary>Example response</summary>
+
+```json
+{
+  "deposit": {
+    "min": 1,
+    "max": 500,
+    "minUsd": 1,
+    "maxUsd": 500
+  },
+  "payout": {
+    "min": 1426,
+    "max": 738080,
+    "minUsd": 1,
+    "maxUsd": 500
+  }
+}
+
+```
+
+</details>
+
+We see that the minimum deposit is 1 USD and the maximum is 500 USD, a user can receive from 1426 NGN to 738080 NGN.
+
+Assume the merchant wants to send 100 USD. Reuse the [KYC requirements](#kyc-requirements) checklist to confirm the customer has passed the appropriate tier. With the example rules, this amount again requires the `advanced` document set before you continue.
+
+Then [Get quote](#get-quote):
+
+<details>
+<summary>Example request</summary>
+
+```json
+{
+  "deposit": {
+    "paymentChannel": "merchant_balance",
+    "currencyType": "merchant_balance",
+    "currencyCode": "USD"
+    "amount": 100
+  },
+  "payout": {
+    "paymentChannel": "bank",
+    "currencyType": "fiat",
+    "currencyCode": "NGN",
+  }
+}
+```
+
+</details>
+
+<details>
+<summary>Example response</summary>
+
+```json
+
+{
+  "quoteId": "68e8c0cc757967d6c4fb9f13",
+  "quoteExpiresAt": "2025-10-10T08:26:12.765Z",
+  "deposit": {
+    "paymentChannel": "merchant_balance",
+    "currencyType": "merchant_balance",
+    "currencyCode": "USD",
+    "currencyDetails": {
+      "merchantName": "Bohdan another"
+    },
+    "cashout": {
+      "amountBeforeFees": 100,
+      "amountAfterFees": 100,
+      "chargedFees": [],
+      "totalChargedFees": 0,
+      "chargedFeesPerRecipient": {},
+      "amountBeforeFeesUsd": 100,
+      "amountAfterFeesUsd": 100,
+      "chargedFeesUsd": [],
+      "totalChargedFeesUsd": 0,
+      "exchangeRate": 1,
+      "exchangeRateAfterFees": 1,
+      "chargedFeesPerRecipientUsd": {},
+      "feeSettings": []
+    },
+    "fieldsToCreateOrder": [
+      {
+        "key": "depositSandboxForcedFlow",
+        "type": "enum",
+        "label": "Sandbox deposit forced flow",
+        "required": false,
+        "defaultValue": "deposit_success",
+        "options": [
+          {
+            "label": "Deposit success",
+            "value": "deposit_success"
+          },
+          {
+            "label": "Deposit invalid",
+            "value": "deposit_invalid"
+          },
+          {
+            "label": "Deposit underpayment (50%)",
+            "value": "deposit_underpayment"
+          },
+          {
+            "label": "Deposit overpayment (200%)",
+            "value": "deposit_overpayment"
+          }
+        ]
+      }
+    ],
+    "transferType": "manual"
+  },
+  "payout": {
+    "paymentChannel": "bank",
+    "currencyType": "fiat",
+    "currencyCode": "NGN",
+    "currencyDetails": {
+      "countryIsoCode": "NG",
+      "countryName": "Nigeria",
+      "countryCode": "234",
+      "currencySymbol": "₦",
+      "countryIcon": "https://storage.googleapis.com/fonbnk-public/countries%2FNG-b1cff1b62ee4e696def3d1b3d38181077a304c279c00b9c6bf06b971b1aab5e3.svg"
+    },
+    "cashout": {
+      "amountBeforeFees": 147626,
+      "amountAfterFees": 147576,
+      "chargedFees": [
+        {
+          "id": "provider_fee",
+          "type": "flat_amount",
+          "recipient": "provider",
+          "amount": 50
+        }
+      ],
+      "totalChargedFees": 50,
+      "chargedFeesPerRecipient": {
+        "provider": 50
+      },
+      "amountBeforeFeesUsd": 100,
+      "amountAfterFeesUsd": 99.966131,
+      "chargedFeesUsd": [
+        {
+          "id": "provider_fee",
+          "type": "flat_amount",
+          "recipient": "provider",
+          "amount": 0.033869
+        }
+      ],
+      "totalChargedFeesUsd": 0.033869,
+      "exchangeRate": 1476.26,
+      "exchangeRateAfterFees": 1476.7602,
+      "chargedFeesPerRecipientUsd": {
+        "provider": 0.033869
+      },
+      "feeSettings": [
+        {
+          "id": "provider_fee",
+          "type": "flat_amount",
+          "value": 50,
+          "min": 0,
+          "max": "Infinity",
+          "recipient": "provider"
+        }
+      ]
+    },
+    "fieldsToCreateOrder": [
+      {
+        "key": "phoneNumber",
+        "label": "Phone Number",
+        "required": true,
+        "type": "phone"
+      },
+      {
+        "key": "bankCode",
+        "label": "Bank name",
+        "required": true,
+        "type": "enum",
+        "options": [
+          {
+            "label": "Sandbox Bank",
+            "value": "1"
+          },
+          {
+            "label": "Sandbox Bank 2",
+            "value": "2"
+          },
+          {
+            "label": "Sandbox Bank 3",
+            "value": "3"
+          }
+        ]
+      },
+      {
+        "key": "bankAccountNumber",
+        "label": "Bank Account Number",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "key": "payoutSandboxForcedFlow",
+        "type": "enum",
+        "label": "Sandbox payout forced flow",
+        "required": false,
+        "defaultValue": "payout_success",
+        "options": [
+          {
+            "label": "Payout success",
+            "value": "payout_success"
+          },
+          {
+            "label": "Payout failed",
+            "value": "payout_failed"
+          }
+        ]
+      }
+    ]
+  }
+}
+
+```
+
+</details>
+
+A user will receive 147576 NGN for 100 USD of merchant balance. Collect these fields:
+
+- phoneNumber 
+- bankCode
+- bankAccountNumber 
+- depositSandboxForcedFlow (sandbox optional field to simulate deposit success/failure/underpayment/overpayment)
+- payoutSandboxForcedFlow (sandbox optional field to simulate payout success/failure)
+
+Create the order via [Create order](#create-order):
+
+<details>
+<summary>Example request</summary>
+
+```json
+{
+  "quoteId": "68e8c0cc757967d6c4fb9f13",
+  "userEmail": "someuser@example.com",
+  "userIp": "174.3.2.22",
+  "deposit": {
+    "paymentChannel": "merchant_balance",
+    "currencyType": "merchant_balance",
+    "currencyCode": "USD",
+    "amount": 100
+  },
+  "payout": {
+    "paymentChannel": "bank",
+    "currencyType": "fiat",
+    "currencyCode": "NGN"
+  },
+  "fieldsToCreateOrder": {
+    "phoneNumber": "2348012345678",
+    "bankAccountNumber": "1234567890",
+    "bankCode": "1"
+  }
+}
+```
+
+</details>
+
+<details>
+<summary>Example response </summary>
+
+```json
+{
+  "quoteUsed": true,
+  "order": {
+    "_id": "68e8c267fe37bec4801dd098",
+    "countryIsoCode": "NG",
+    "userId": "68e39f1af2846eee548917b2",
+    "userEmail": "someuser@example.com",
+    "status": "deposit_awaiting",
+    "deposit": {
+      "paymentChannel": "merchant_balance",
+      "currencyType": "merchant_balance",
+      "currencyCode": "USD",
+      "currencyDetails": {
+        "merchantName": "Bohdan another"
+      },
+      "cashout": {
+        "amountBeforeFees": 100,
+        "amountAfterFees": 100,
+        "chargedFees": [],
+        "totalChargedFees": 0,
+        "chargedFeesPerRecipient": {},
+        "amountBeforeFeesUsd": 100,
+        "amountAfterFeesUsd": 100,
+        "chargedFeesUsd": [],
+        "totalChargedFeesUsd": 0,
+        "exchangeRate": 1,
+        "exchangeRateAfterFees": 1,
+        "chargedFeesPerRecipientUsd": {},
+        "feeSettings": []
+      },
+      "fieldsToCreateOrder": [
+        {
+          "key": "depositSandboxForcedFlow",
+          "type": "enum",
+          "label": "Sandbox deposit forced flow",
+          "required": false,
+          "defaultValue": "deposit_success",
+          "options": [
+            {
+              "label": "Deposit success",
+              "value": "deposit_success"
+            },
+            {
+              "label": "Deposit invalid",
+              "value": "deposit_invalid"
+            },
+            {
+              "label": "Deposit underpayment (50%)",
+              "value": "deposit_underpayment"
+            },
+            {
+              "label": "Deposit overpayment (200%)",
+              "value": "deposit_overpayment"
+            }
+          ]
+        }
+      ],
+      "providedFieldsToCreateOrder": {},
+      "transferInstructions": {
+        "type": "manual",
+        "transferDetails": [],
+        "instructionsText": "",
+        "fieldsToConfirmOrder": []
+      }
+    },
+    "payout": {
+      "paymentChannel": "bank",
+      "currencyType": "fiat",
+      "currencyCode": "NGN",
+      "currencyDetails": {
+        "countryIsoCode": "NG",
+        "countryName": "Nigeria",
+        "countryCode": "234",
+        "currencySymbol": "₦",
+        "countryIcon": "https://storage.googleapis.com/fonbnk-public/countries%2FNG-b1cff1b62ee4e696def3d1b3d38181077a304c279c00b9c6bf06b971b1aab5e3.svg"
+      },
+      "cashout": {
+        "amountBeforeFees": 147626,
+        "amountAfterFees": 147576,
+        "chargedFees": [
+          {
+            "id": "provider_fee",
+            "type": "flat_amount",
+            "recipient": "provider",
+            "amount": 50
+          }
+        ],
+        "totalChargedFees": 50,
+        "chargedFeesPerRecipient": {
+          "provider": 50
+        },
+        "amountBeforeFeesUsd": 100,
+        "amountAfterFeesUsd": 99.966131,
+        "chargedFeesUsd": [
+          {
+            "id": "provider_fee",
+            "type": "flat_amount",
+            "recipient": "provider",
+            "amount": 0.033869
+          }
+        ],
+        "totalChargedFeesUsd": 0.033869,
+        "exchangeRate": 1476.26,
+        "exchangeRateAfterFees": 1476.7602,
+        "chargedFeesPerRecipientUsd": {
+          "provider": 0.033869
+        },
+        "feeSettings": [
+          {
+            "id": "provider_fee",
+            "type": "flat_amount",
+            "value": 50,
+            "min": 0,
+            "max": "Infinity",
+            "recipient": "provider"
+          }
+        ]
+      },
+      "fieldsToCreateOrder": [
+        {
+          "key": "phoneNumber",
+          "label": "Phone Number",
+          "required": true,
+          "type": "phone"
+        },
+        {
+          "key": "bankCode",
+          "label": "Bank name",
+          "required": true,
+          "type": "enum",
+          "options": [
+            {
+              "label": "Sandbox Bank",
+              "value": "1"
+            },
+            {
+              "label": "Sandbox Bank 2",
+              "value": "2"
+            },
+            {
+              "label": "Sandbox Bank 3",
+              "value": "3"
+            }
+          ]
+        },
+        {
+          "key": "bankAccountNumber",
+          "label": "Bank Account Number",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "key": "payoutSandboxForcedFlow",
+          "type": "enum",
+          "label": "Sandbox payout forced flow",
+          "required": false,
+          "defaultValue": "payout_success",
+          "options": [
+            {
+              "label": "Payout success",
+              "value": "payout_success"
+            },
+            {
+              "label": "Payout failed",
+              "value": "payout_failed"
+            }
+          ]
+        }
+      ],
+      "providedFieldsToCreateOrder": {
+        "phoneNumber": "2348012345678",
+        "bankCode": "1",
+        "bankAccountNumber": "1234567890"
+      }
+    },
+    "statusChangeLogs": [],
+    "createdAt": "2025-10-10T08:23:03.923Z",
+    "updatedAt": "2025-10-10T08:23:03.923Z",
+    "expiresAt": "2025-10-10T11:23:01.943Z"
+  }
+}
+```
+
+</details>
+
+Then call [Confirm order](#confirm-order). Its a merchant balance deposit, so no fields are required, your balance will be debited automatically.
+
+<details>
+<summary>Example request</summary>
+
+```json
+{
+  "orderId": "68e8c267fe37bec4801dd098"
+}
+```
+
+</details>
+
+The system validates the deposit and processes payout. Use [Get order](#get-order) to track status until "
+payout_successful".
+
 ## Transfer types explanation
 
 We support the following transfer types for deposits:
@@ -1810,16 +2403,17 @@ flowchart TD
     classDef payout fill:#C5F7C1,stroke:#4CAF50,stroke-width:2px,color:#000,rx:8px,ry:8px
     classDef refund fill:#FFE5B4,stroke:#FF9800,stroke-width:2px,color:#000,rx:8px,ry:8px
     classDef fail fill:#F8C8DC,stroke:#E57373,stroke-width:2px,color:#000,rx:8px,ry:8px
+    classDef terminal fill:#E0E0E0,stroke:#9E9E9E,stroke-width:2px,color:#000,rx:8px,ry:8px
 
     %% Deposit states
     A[deposit_awaiting]:::expectedFlow --> B[deposit_validating]:::expectedFlow
-    A --> E2[deposit_canceled]:::fail
-    A --> D2[deposit_invalid]:::fail
-    A --> F2[deposit_expired]:::fail
+    A --> E2[deposit_canceled]:::terminal
+    A --> D2[deposit_invalid]:::terminal
+    A --> F2[deposit_expired]:::terminal
     B --> C[deposit_successful]:::expectedFlow
-    B --> D[deposit_invalid]:::fail
-    B --> E[deposit_canceled]:::fail
-    B --> F[deposit_expired]:::fail
+    B --> D[deposit_invalid]:::terminal
+    B --> E[deposit_canceled]:::terminal
+    B --> F[deposit_expired]:::terminal
 
     %% Payout states
     C --> G[payout_pending]:::expectedFlow
@@ -1830,7 +2424,6 @@ flowchart TD
     J --> K[refund_pending]:::refund
     K --> L[refund_successful]:::refund
     K --> M[refund_failed]:::fail
-
 ```
 
 Statuses explanation:
