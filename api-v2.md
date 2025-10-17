@@ -96,7 +96,7 @@ Most flows require validating a user’s Know Your Customer (KYC) level before c
 
 > Tip: The sample data below shows that payouts ≥ 100 USD in crypto require `advanced` KYC. Your environment will return thresholds appropriate for the country, currency, and operation type.
 
-<details>
+
 <summary>Sample `Get user KYC state` response</summary>
 
 ```json
@@ -158,9 +158,9 @@ Most flows require validating a user’s Know Your Customer (KYC) level before c
 }
 ```
 
-</details>
 
-<details>
+
+
 <summary>Sample `Submit user KYC` request</summary>
 
 ```json
@@ -181,7 +181,7 @@ Most flows require validating a user’s Know Your Customer (KYC) level before c
 }
 ```
 
-</details>
+
 
 Once the user’s KYC status is approved at or above the required tier, proceed with quoting and order creation. The following example flows reference this section instead of duplicating the steps.
 
@@ -194,7 +194,7 @@ These walkthroughs build on the [Order flow overview](#order-flow-overview). Bef
 Let’s do a NGN (fiat) deposit to merchant balance USD payout. First, call [Get currencies](#get-currencies) and assume
 you receive:
 
-<details>
+
 <summary>Example response</summary>
 
 ```json
@@ -302,7 +302,7 @@ you receive:
 ]
 ```
 
-</details>
+
 
 We see NGN supports deposit via bank/airtime/mobile money, and payout via bank/mobile money. Merchant balance supports both
 deposit and payout. So we can do Fiat→Merchant balance USD.
@@ -317,7 +317,7 @@ Next, call [Get order limits](#get-order-limits) with:
 - payoutCurrencyType: "merchant_balance"
 - payoutCurrencyCode: "USD"
 
-<details>
+
 <summary>Example response</summary>
 
 ```json
@@ -337,7 +337,7 @@ Next, call [Get order limits](#get-order-limits) with:
 }
 ```
 
-</details>
+
 
 We see that the minimum deposit is 1523 NGN and the maximum is 761469 NGN, which corresponds to 1-500 USD.
 
@@ -345,7 +345,7 @@ Assume the merchant wants to receive 100 USD. Check the user’s tier using the 
 
 Then [Get quote](#get-quote):
 
-<details>
+
 <summary>Example request</summary>
 
 ```json
@@ -365,9 +365,9 @@ Then [Get quote](#get-quote):
 }
 ```
 
-</details>
 
-<details>
+
+
 <summary>Example response</summary>
 
 ```json
@@ -553,7 +553,7 @@ Then [Get quote](#get-quote):
 }
 ```
 
-</details>
+
 
 For a merchant receive 100 USD, user must deposit 152294 NGN. Collect these fields:
 
@@ -567,7 +567,7 @@ For a merchant receive 100 USD, user must deposit 152294 NGN. Collect these fiel
 
 Create the order via [Create order](#create-order):
 
-<details>
+
 <summary>Example request</summary>
 
 ```json
@@ -597,9 +597,9 @@ Create the order via [Create order](#create-order):
 }
 ```
 
-</details>
 
-<details>
+
+
 <summary>Example response (transfer instructions excerpt)</summary>
 
 ```typescript
@@ -831,12 +831,12 @@ const response = {
 }
 ```
 
-</details>
+
 
 User makes the transfer with the exact amount and reference. Then call [Confirm order](#confirm-order) if no extra
 fields are required:
 
-<details>
+
 <summary>Example request</summary>
 
 ```json
@@ -845,7 +845,7 @@ fields are required:
 }
 ```
 
-</details>
+
 
 The system validates the deposit and processes payout. Use [Get order](#get-order) to track status until "
 payout_successful".
@@ -853,7 +853,7 @@ payout_successful".
 Let’s do a CELO cUSD deposit to merchant balance USD payout. First, call [Get currencies](#get-currencies) and assume
 you receive:
 
-<details>
+
 <summary>Example response</summary>
 
 ```json
@@ -913,7 +913,7 @@ you receive:
 ]
 ```
 
-</details>
+
 
 We see CELO cUSD supports deposit and payout. Merchant balance supports both
 deposit and payout. So we can do Crypto→Merchant balance USD.
@@ -927,7 +927,7 @@ Next, call [Get order limits](#get-order-limits) with:
 - payoutCurrencyType: "merchant_balance"
 - payoutCurrencyCode: "USD"
 
-<details>
+
 <summary>Example response</summary>
 
 ```json
@@ -948,7 +948,7 @@ Next, call [Get order limits](#get-order-limits) with:
 
 ```
 
-</details>
+
 
 We see that the minimum deposit is 1 CELO cUSD and the maximum is 500 CELO cUSD.
 
@@ -956,7 +956,7 @@ Assume the merchant wants to receive 100 USD. Reuse the [KYC requirements](#kyc-
 
 Then [Get quote](#get-quote):
 
-<details>
+
 <summary>Example request</summary>
 
 ```json
@@ -975,9 +975,9 @@ Then [Get quote](#get-quote):
 }
 ```
 
-</details>
 
-<details>
+
+
 <summary>Example response</summary>
 
 ```json
@@ -1088,7 +1088,7 @@ Then [Get quote](#get-quote):
 }
 ```
 
-</details>
+
 
 For a merchant receive 100 USD, user must deposit 100 CELO cUSD. Collect these fields:
 
@@ -1098,7 +1098,7 @@ For a merchant receive 100 USD, user must deposit 100 CELO cUSD. Collect these f
 
 Create the order via [Create order](#create-order):
 
-<details>
+
 <summary>Example request</summary>
 
 ```json
@@ -1125,9 +1125,9 @@ Create the order via [Create order](#create-order):
 }
 ```
 
-</details>
 
-<details>
+
+
 <summary>Example response (transfer instructions excerpt)</summary>
 
 ```typescript
@@ -1284,12 +1284,12 @@ const response = {
 
 ```
 
-</details>
+
 
 User makes a crypto transfer to the wallet address from the order.deposit.transferInstructions("recipientWalletAddress") - which is 0x0f002dcfde0f7ba4088341186f48fb8592e50695 for this order and provides with a transaction hash. 
 Then call [Confirm order](#confirm-order) with the transaction hash:
 
-<details>
+
 <summary>Example request</summary>
 
 ```json
@@ -1301,7 +1301,7 @@ Then call [Confirm order](#confirm-order) with the transaction hash:
 }
 ```
 
-</details>
+
 
 The system validates the deposit and processes payout. Use [Get order](#get-order) to track status until "
 payout_successful".
@@ -1311,7 +1311,7 @@ payout_successful".
 Let’s do a NGN (fiat) deposit to POLYGON_USDT (crypto) payout. First, call [Get currencies](#get-currencies) and assume
 you receive:
 
-<details>
+
 <summary>Example response</summary>
 
 ```json
@@ -1426,7 +1426,7 @@ you receive:
 ]
 ```
 
-</details>
+
 
 We see NGN supports deposit via bank/airtime/mobile money, and payout via bank/mobile money. POLYGON_USDT supports both
 deposit and payout. So we can do Fiat→Crypto (NGN→POLYGON_USDT).
@@ -1441,7 +1441,7 @@ Next, call [Get order limits](#get-order-limits) with:
 - payoutCurrencyType: "crypto"
 - payoutCurrencyCode: "POLYGON_USDT"
 
-<details>
+
 <summary>Example response</summary>
 
 ```json
@@ -1461,13 +1461,13 @@ Next, call [Get order limits](#get-order-limits) with:
 }
 ```
 
-</details>
+
 
 Assume the user wants to receive 100 POLYGON_USDT. Validate their tier using the [KYC requirements](#kyc-requirements) flow. With the sample thresholds, that amount once more requires `advanced` KYC approval before quoting.
 
 Then [Get quote](#get-quote):
 
-<details>
+
 <summary>Example request</summary>
 
 ```json
@@ -1487,9 +1487,9 @@ Then [Get quote](#get-quote):
 }
 ```
 
-</details>
 
-<details>
+
+
 <summary>Example response</summary>
 
 ```json
@@ -1671,7 +1671,7 @@ Then [Get quote](#get-quote):
 }
 ```
 
-</details>
+
 
 To receive 100 POLYGON_USDT, user must deposit 153128 NGN. Collect these fields:
 
@@ -1682,7 +1682,7 @@ To receive 100 POLYGON_USDT, user must deposit 153128 NGN. Collect these fields:
 
 Create the order via [Create order](#create-order):
 
-<details>
+
 <summary>Example request</summary>
 
 ```json
@@ -1711,9 +1711,9 @@ Create the order via [Create order](#create-order):
 }
 ```
 
-</details>
 
-<details>
+
+
 <summary>Example response (transfer instructions excerpt)</summary>
 
 ```typescript
@@ -1752,12 +1752,12 @@ const response = {
 }
 ```
 
-</details>
+
 
 User makes the transfer with the exact amount and reference. Then call [Confirm order](#confirm-order) if no extra
 fields are required:
 
-<details>
+
 <summary>Example request</summary>
 
 ```json
@@ -1766,7 +1766,7 @@ fields are required:
 }
 ```
 
-</details>
+
 
 The system validates the deposit and processes payout. Use [Get order](#get-order) to track status until "
 payout_successful".
@@ -1781,7 +1781,7 @@ transaction hash of the crypto deposit transaction in fieldsToConfirmOrder.
 Let’s do a merchant balance USD deposit to NGN bank payout. First, call [Get currencies](#get-currencies) and assume
 you receive:
 
-<details>
+
 <summary>Example response</summary>
 
 ```json
@@ -1889,7 +1889,7 @@ you receive:
 ]
 ```
 
-</details>
+
 
 We see CELO cUSD supports deposit and payout. Merchant balance supports both
 deposit and payout. So we can do Fiat→Merchant balance USD.
@@ -1903,7 +1903,7 @@ Next, call [Get order limits](#get-order-limits) with:
 - payoutCurrencyType: "fiat"
 - payoutCurrencyCode: "NGN"
 
-<details>
+
 <summary>Example response</summary>
 
 ```json
@@ -1924,7 +1924,7 @@ Next, call [Get order limits](#get-order-limits) with:
 
 ```
 
-</details>
+
 
 We see that the minimum deposit is 1 USD and the maximum is 500 USD, a user can receive from 1426 NGN to 738080 NGN.
 
@@ -1932,7 +1932,7 @@ Assume the merchant wants to send 100 USD. Reuse the [KYC requirements](#kyc-req
 
 Then [Get quote](#get-quote):
 
-<details>
+
 <summary>Example request</summary>
 
 ```json
@@ -1951,9 +1951,9 @@ Then [Get quote](#get-quote):
 }
 ```
 
-</details>
 
-<details>
+
+
 <summary>Example response</summary>
 
 ```json
@@ -2121,7 +2121,7 @@ Then [Get quote](#get-quote):
 
 ```
 
-</details>
+
 
 A user will receive 147576 NGN for 100 USD of merchant balance. Collect these fields:
 
@@ -2133,7 +2133,7 @@ A user will receive 147576 NGN for 100 USD of merchant balance. Collect these fi
 
 Create the order via [Create order](#create-order):
 
-<details>
+
 <summary>Example request</summary>
 
 ```json
@@ -2160,9 +2160,9 @@ Create the order via [Create order](#create-order):
 }
 ```
 
-</details>
 
-<details>
+
+
 <summary>Example response </summary>
 
 ```json
@@ -2349,11 +2349,11 @@ Create the order via [Create order](#create-order):
 }
 ```
 
-</details>
+
 
 Then call [Confirm order](#confirm-order). Its a merchant balance deposit, so no fields are required, your balance will be debited automatically.
 
-<details>
+
 <summary>Example request</summary>
 
 ```json
@@ -2362,7 +2362,7 @@ Then call [Confirm order](#confirm-order). Its a merchant balance deposit, so no
 }
 ```
 
-</details>
+
 
 The system validates the deposit and processes payout. Use [Get order](#get-order) to track status until "
 payout_successful".
@@ -2458,7 +2458,7 @@ How to compute signature:
 - signature = Base64(HMAC-SHA256(key, UTF8(stringToSign)))
 - Send headers: x-client-id, x-timestamp, x-signature
 
-<details>
+
 <summary>Pseudocode</summary>
 
 ```pseudocode
@@ -2467,9 +2467,9 @@ stringToSign = timestamp + ":" + endpoint;
 signature = Base64 ( HMAC-SHA256 ( Base64-Decode ( clientSecret ), UTF8 ( concatenatedString ) ) );
 ```
 
-</details>
 
-<details>
+
+
 <summary>TypeScript example</summary>
 
 ```typescript
@@ -2529,7 +2529,7 @@ const main = async () => {
 main().catch(console.error);
 ```
 
-</details>
+
 
 ## Webhooks
 
@@ -2539,7 +2539,7 @@ There are 2 ways to get notified of order status changes via webhooks:
 
 When an order status changes, a POST request is sent to the webhook URL with the following payload:
 
-<details>
+
 <summary>Webhooks type</summary>
 
 ```typescript
@@ -2616,11 +2616,11 @@ type Webhook = {
   };
 }
 ```
-</details>
+
 
 Request example:
 
-<details>
+
 <summary>Example payload</summary>
 
 ```json
@@ -2669,7 +2669,7 @@ Request example:
 }
 ```
 
-</details>
+
 
 ### Webhook Verification
 
@@ -2743,7 +2743,7 @@ type CurrenciesResponse = {
 }[]
 ```
 
-<details>
+
 <summary>Response example</summary>
 
 ```typescript
@@ -2807,7 +2807,7 @@ const response = [
 ]
 ```
 
-</details>
+
 
 ### Get order limits
 
@@ -2837,7 +2837,7 @@ type OrderLimitsResponse = {
 }
 ```
 
-<details>
+
 <summary>Response example</summary>
 
 ```typescript
@@ -2857,7 +2857,7 @@ const response = {
 }
 ```
 
-</details>
+
 
 ### Get quote
 
@@ -2906,7 +2906,7 @@ type QuoteResponse = {
 }
 ```
 
-<details>
+
 <summary>Request + Response example</summary>
 
 ```typescript
@@ -3010,7 +3010,7 @@ const response = {
 }
 ```
 
-</details>
+
 
 > Note: Always honor quoteExpiresAt. If a quote expires, request a new one before creating the order.
 
@@ -3089,7 +3089,7 @@ type CreateOrderResponse = {
 }
 ```
 
-<details>
+
 <summary>Request + Response example</summary>
 
 ```typescript
@@ -3116,7 +3116,7 @@ const response = {
 }
 ```
 
-</details>
+
 
 ### Get user KYC state
 
@@ -3150,7 +3150,7 @@ type GetUserKycResponse = {
 }
 ```
 
-<details>
+
 <summary>Response example</summary>
 
 ```typescript
@@ -3202,7 +3202,7 @@ const response = {
 }
 ```
 
-</details>
+
 
 ### Submit user KYC
 
@@ -3221,7 +3221,7 @@ type SubmitUserKycRequest = {
 }
 ```
 
-<details>
+
 <summary>Request example</summary>
 
 ```typescript
@@ -3237,7 +3237,7 @@ const requestBody = {
 }
 ```
 
-</details>
+
 
 ### Trigger intermediate action
 
@@ -3255,7 +3255,7 @@ type TriggerIntermediateActionRequest = {
 }
 ```
 
-<details>
+
 <summary>Request example</summary>
 
 ```json
@@ -3267,7 +3267,7 @@ type TriggerIntermediateActionRequest = {
 }
 ```
 
-</details>
+
 
 Returns the same structure as [Get order](#get-order).
 
@@ -3286,7 +3286,7 @@ type ConfirmOrderRequest = {
 }
 ```
 
-<details>
+
 <summary>Minimal request</summary>
 
 ```json
@@ -3295,7 +3295,7 @@ type ConfirmOrderRequest = {
 }
 ```
 
-</details>
+
 
 Returns the same structure as [Get order](#get-order).
 
@@ -3365,7 +3365,7 @@ type GetOrderResponse = {
 }
 ```
 
-<details>
+
 <summary>Response example</summary>
 
 ```typescript
@@ -3507,7 +3507,7 @@ const response = {
 }
 ```
 
-</details>
+
 
 ### Get orders
 
@@ -3560,7 +3560,7 @@ type MerchantBalanceResponse = { USD: number }
 
 ## Types used in the above definitions:
 
-<details>
+
 <summary>Expand all TypeScript types</summary>
 
 ```typescript
@@ -3803,4 +3803,4 @@ enum OperationType { DEPOSIT = 'deposit', PAYOUT = 'payout' }
 
 ```
 
-</details>
+
