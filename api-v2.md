@@ -2419,11 +2419,14 @@ flowchart TD
     C --> G[payout_pending]:::expectedFlow
     G --> H[payout_successful]:::payout
     G --> J[payout_failed]:::fail
+    J --> |Retry until payout_successful| H
+    
 
     %% Refund states
     J --> K[refund_pending]:::refund
     K --> L[refund_successful]:::refund
     K --> M[refund_failed]:::fail
+    M --> |Retry until refund_successful| L
 ```
 
 Statuses explanation:
