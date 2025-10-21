@@ -158,7 +158,12 @@ Most flows require validating a user’s Know Your Customer (KYC) level before c
 }
 ```
 
-
+The "advanced" KYC document requires images. Submit them as an array of objects with `image_type_id` and `image` URL.
+Image URLs must be publicly accessible or contain the image data as a base64-encoded string.
+The "image_type_id" can accept the following values:
+- 0: Selfie
+- 1: Document front
+- 5: Document back
 
 
 <summary>Sample `Submit user KYC` request</summary>
@@ -181,7 +186,7 @@ Most flows require validating a user’s Know Your Customer (KYC) level before c
 }
 ```
 
-
+How to submit the adva
 
 Once the user’s KYC status is approved at or above the required tier, proceed with quoting and order creation. The following example flows reference this section instead of duplicating the steps.
 
